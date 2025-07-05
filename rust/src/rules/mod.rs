@@ -3,9 +3,13 @@ pub mod pl001_require_test;
 use crate::models::LintViolation;
 use std::path::Path;
 
+use crate::test_cache::TestCache;
+use std::sync::Arc;
+
 /// Context for rule checking
 pub struct RuleContext<'a> {
     pub test_directories: &'a [String],
+    pub test_cache: &'a Arc<TestCache>,
 }
 
 /// Trait that all linting rules must implement

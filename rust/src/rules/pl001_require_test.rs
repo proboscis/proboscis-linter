@@ -1,6 +1,5 @@
 use super::LintRule;
 use crate::models::LintViolation;
-use crate::test_discovery::find_test_for_function;
 use regex::Regex;
 use std::path::Path;
 
@@ -53,13 +52,11 @@ impl LintRule for PL001RequireTest {
         // Check if it's a method (has class context)
         let is_method = class_name.is_some();
         
-        // Look for corresponding test
-        let test_found = find_test_for_function(
+        // Look for corresponding test using cache
+        let test_found = context.test_cache.has_test_for_function(
             function_name,
             file_path,
             class_name,
-            is_method,
-            context.test_directories,
         );
         
         if !test_found {
