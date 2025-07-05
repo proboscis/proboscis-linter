@@ -63,6 +63,7 @@ test_patterns = ["test_*.py", "*_test.py"]
 exclude_patterns = ["**/__pycache__/**", "**/migrations/**"]
 output_format = "text"
 fail_on_error = false
+strict_mode = false  # When true, checks private functions too
 
 [tool.proboscis.rules]
 PL001 = true  # require-unit-test
@@ -101,10 +102,52 @@ Ensures functions have end-to-end tests when enabled.
 **Test Location**: Tests must be in `test/e2e/` directory
 
 **Skipped by default for all rules**:
-- Private functions (starting with `_`)
+- Private functions (starting with `_`) - unless `strict_mode = true`
+- Functions not in `__all__` when `__all__` is defined
 - `__init__` methods
 - Protocol methods
 - Functions in test files
+
+## Public API Detection
+
+By default, proboscis-linter only checks public functions and methods:
+
+### Module-level visibility
+- If a module defines `__all__`, only functions listed in `__all__` are checked
+- If no `__all__` is defined, functions starting with `_` are considered private
+- Use `strict_mode = true` to check all functions including private ones
+
+### Class method visibility
+- Methods starting with `_` are always considered private (except in strict mode)
+- Special methods like `__init__`, `__str__`, etc. are always excluded
+- If a class is private (not in `__all__` or starts with `_`), its methods are not checked
+
+### Example
+
+```python
+# module.py
+__all__ = ['public_func', 'PublicClass']
+
+def public_func():  # Checked - in __all__
+    pass
+
+def _private_func():  # Not checked - starts with _
+    pass
+
+def internal_func():  # Not checked - not in __all__
+    pass
+
+class PublicClass:  # Checked - in __all__
+    def method(self):  # Checked
+        pass
+    
+    def _private_method(self):  # Not checked - starts with _
+        pass
+
+class _PrivateClass:  # Not checked - starts with _
+    def method(self):  # Not checked - class is private
+        pass
+```
 
 ## Test Organization
 

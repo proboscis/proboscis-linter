@@ -47,6 +47,12 @@ class ProboscisConfig(BaseModel):
         description="Exit with non-zero code if violations are found"
     )
     
+    # Visibility configuration
+    strict_mode: bool = Field(
+        default=False,
+        description="Check private functions/methods (with _ prefix) in addition to public ones"
+    )
+    
     @field_validator("output_format")
     @classmethod
     def validate_output_format(cls, v: str) -> str:

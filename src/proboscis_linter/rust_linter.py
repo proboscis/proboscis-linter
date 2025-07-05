@@ -24,7 +24,8 @@ class RustLinterWrapper:
         self._rust_linter = proboscis_linter_rust.RustLinter(
             test_directories=config.test_directories,
             test_patterns=config.test_patterns,
-            exclude_patterns=config.exclude_patterns
+            exclude_patterns=config.exclude_patterns,
+            strict_mode=config.strict_mode
         )
         self._config = config
     
