@@ -5,8 +5,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run python /Users/s22625/repos/proboscis-linter/proboscis_stop_hook.py",
-            "timeout": 300
+            "command": "cd /Users/s22625/repos/proboscis-linter && uv run proboscis-linter . --fail-on-error --format json | jq -r 'if .total_violations > 0 then {decision: \"block\", reason: \"Linter found \\(.total_violations) violations. Please fix them before stopping.\\n\\nRun this command to see the violations:\\n  uv run proboscis-linter .\", continue: true} else {decision: \"approve\"} end'",
+            "timeout": 60
           }
         ]
       }
