@@ -51,6 +51,9 @@ RULES:
     
   PL003: require-e2e-test
     Ensures each function has a corresponding end-to-end test in test/e2e/
+    
+  PL004: require-test-markers
+    Ensures test functions have appropriate pytest markers (@pytest.mark.unit/integration/e2e)
 
 \b
 TEST NAMING CONVENTIONS:
@@ -104,13 +107,13 @@ For more information, visit: https://github.com/proboscis/proboscis-linter
 @click.option(
     "--format", "-f",
     type=click.Choice(["text", "json"], case_sensitive=False),
-    default="text",
+    default=None,
     help="Output format for violations report. 'text' for human-readable output, 'json' for machine-parseable output.",
     show_default=True
 )
 @click.option(
-    "--fail-on-error",
-    is_flag=True,
+    "--fail-on-error/--no-fail-on-error",
+    default=None,
     help="Exit with non-zero status code (1) if any violations are found. Useful for CI/CD pipelines."
 )
 @click.option(
