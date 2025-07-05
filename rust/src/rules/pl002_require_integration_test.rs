@@ -3,21 +3,21 @@ use crate::models::LintViolation;
 use crate::noqa::parse_noqa_rules;
 use std::path::Path;
 
-pub struct PL001RequireUnitTest {}
+pub struct PL002RequireIntegrationTest {}
 
-impl PL001RequireUnitTest {
+impl PL002RequireIntegrationTest {
     pub fn new() -> Self {
         Self {}
     }
 }
 
-impl LintRule for PL001RequireUnitTest {
+impl LintRule for PL002RequireIntegrationTest {
     fn rule_id(&self) -> &'static str {
-        "PL001"
+        "PL002"
     }
     
     fn rule_name(&self) -> &'static str {
-        "require-unit-test"
+        "require-integration-test"
     }
     
     fn check_function(
@@ -46,12 +46,12 @@ impl LintRule for PL001RequireUnitTest {
             return None;
         }
         
-        // Look for corresponding unit test using cache
+        // Look for corresponding integration test using cache
         let test_found = context.test_cache.has_test_for_function_of_type(
             function_name,
             file_path,
             class_name,
-            &crate::test_cache::TestType::Unit,
+            &crate::test_cache::TestType::Integration,
             context.module_path,
             context.project_root,
         );
@@ -61,7 +61,7 @@ impl LintRule for PL001RequireUnitTest {
             let test_name = context.test_cache.get_canonical_test_pattern(
                 function_name, 
                 class_name, 
-                &crate::test_cache::TestType::Unit
+                &crate::test_cache::TestType::Integration
             );
             
             // Get source file name
@@ -73,13 +73,13 @@ impl LintRule for PL001RequireUnitTest {
             let expected_test_file = context.test_cache.get_expected_test_file_path(
                 context.module_path,
                 source_file_name,
-                &crate::test_cache::TestType::Unit,
+                &crate::test_cache::TestType::Integration,
                 context.project_root
             );
             
             let message = if let Some(class) = class_name {
                 format!(
-                    "[{}] Method '{}' of class '{}' has no unit test found.\nExpected test function: {}\nIn test file: {}",
+                    "[{}] Method '{}' of class '{}' has no integration test found.\nExpected test function: {}\nIn test file: {}",
                     self.rule_id(),
                     function_name,
                     class,
@@ -88,7 +88,7 @@ impl LintRule for PL001RequireUnitTest {
                 )
             } else {
                 format!(
-                    "[{}] Function '{}' has no unit test found.\nExpected test function: {}\nIn test file: {}",
+                    "[{}] Function '{}' has no integration test found.\nExpected test function: {}\nIn test file: {}",
                     self.rule_id(),
                     function_name,
                     test_name,
