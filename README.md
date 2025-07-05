@@ -7,10 +7,12 @@ A high-performance Python linter that enforces test coverage for functions and c
 - **Fast**: Rust-based implementation processes files in parallel
 - **Configurable**: Control rules via `pyproject.toml`
 - **Extensible**: Easy to add new rules with the PL### naming convention
-- **Smart**: Respects `# noqa` comments and understands test patterns
+- **Smart**: Respects `#noqa` comments (with flexible syntax) and understands test patterns
 - **Class-Aware**: Distinguishes between class methods and standalone functions
 - **Hierarchical Tests**: Supports unit, integration, and e2e test organization
 - **Structure Enforcement**: Tests must mirror source code package structure
+- **Git Integration**: Use `--changed-only` to lint only modified files
+- **Flexible Suppression**: Support for `#noqa PL001`, `#noqa: PL001`, and `#noqa PL001, PL002`
 
 ## Installation
 
@@ -20,7 +22,7 @@ pip install proboscis-linter
 
 For development:
 ```bash
-git clone https://github.com/yourusername/proboscis-linter
+git clone https://github.com/proboscis/proboscis-linter
 cd proboscis-linter
 uv pip install -e .
 uv run maturin develop  # Build Rust extension
@@ -32,16 +34,22 @@ uv run maturin develop  # Build Rust extension
 
 ```bash
 # Lint current directory
-proboscis-lint
+proboscis-linter .
 
 # Lint specific path
-proboscis-lint src/
+proboscis-linter src/
 
 # JSON output
-proboscis-lint --format json
+proboscis-linter --format json
 
 # Fail on violations
-proboscis-lint --fail-on-error
+proboscis-linter --fail-on-error
+
+# Lint only changed files in git
+proboscis-linter . --changed-only
+
+# Show comprehensive help
+proboscis-linter --help
 ```
 
 ### Configuration
@@ -68,7 +76,7 @@ PL003 = true  # require-e2e-test
 
 Ensures all public functions and methods have corresponding unit tests.
 
-**Skip with**: `# noqa: PL001`
+**Skip with**: `#noqa PL001` or `#noqa: PL001`
 
 **Test Location**: Tests must be in `test/unit/` directory with matching structure
 
@@ -80,7 +88,7 @@ Ensures all public functions and methods have corresponding unit tests.
 
 Ensures functions have integration tests when enabled.
 
-**Skip with**: `# noqa: PL002`
+**Skip with**: `#noqa PL002` or `#noqa: PL002`
 
 **Test Location**: Tests must be in `test/integration/` directory
 
@@ -88,7 +96,7 @@ Ensures functions have integration tests when enabled.
 
 Ensures functions have end-to-end tests when enabled.
 
-**Skip with**: `# noqa: PL003`
+**Skip with**: `#noqa PL003` or `#noqa: PL003`
 
 **Test Location**: Tests must be in `test/e2e/` directory
 
