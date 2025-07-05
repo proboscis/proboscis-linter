@@ -26,6 +26,9 @@ class TextReportGenerator:
             )
         
         lines.append(f"\nTotal violations: {len(violations)}")
+        lines.append("\nTip: Use #noqa comments to suppress specific rules for special cases:")
+        lines.append("  def special_function():  #noqa PL001")
+        lines.append("  def another_function():  #noqa PL001, PL002")
         return "\n".join(lines)
     
     def get_format_name(self) -> str:
