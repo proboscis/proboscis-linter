@@ -8,6 +8,7 @@ from proboscis_linter.config import ProboscisConfig, RuleConfig
 class TestHierarchicalTests:
     """Test the hierarchical test structure support."""
     
+    @pytest.mark.unit
     def test_unit_test_discovery(self):
         """Test that PL001 finds unit tests in test/unit/ directory."""
         config = ProboscisConfig(
@@ -34,6 +35,7 @@ class TestHierarchicalTests:
         function_names = {v.function_name for v in pl001_violations}
         assert function_names == {"divide", "calculate_total"}
     
+    @pytest.mark.unit
     def test_integration_test_discovery(self):
         """Test that PL002 finds integration tests in test/integration/ directory."""
         config = ProboscisConfig(
@@ -61,6 +63,7 @@ class TestHierarchicalTests:
         function_names = {v.function_name for v in pl002_violations}
         assert function_names == {"add", "multiply", "calculate_total"}
     
+    @pytest.mark.unit
     def test_e2e_test_discovery(self):
         """Test that PL003 finds e2e tests in test/e2e/ directory."""
         config = ProboscisConfig(
@@ -88,6 +91,7 @@ class TestHierarchicalTests:
         function_names = {v.function_name for v in pl003_violations}
         assert function_names == {"add", "multiply", "divide"}
     
+    @pytest.mark.unit
     def test_all_rules_together(self):
         """Test all three rules running together."""
         config = ProboscisConfig(
@@ -117,6 +121,7 @@ class TestHierarchicalTests:
         # Total should be 8 (as we saw in manual test)
         assert sum(rule_counts.values()) == 8
     
+    @pytest.mark.unit
     def test_error_messages_show_correct_directories(self):
         """Test that error messages indicate the correct test directory."""
         config = ProboscisConfig(

@@ -7,6 +7,7 @@ from proboscis_linter.config import ProboscisConfig, RuleConfig
 class TestPackageStructure:
     """Test that the linter enforces test organization matching source structure."""
     
+    @pytest.mark.unit
     def test_class_method_detection(self):
         """Test that class methods are detected and reported differently from functions."""
         config = ProboscisConfig(
@@ -37,6 +38,7 @@ class TestPackageStructure:
                 # Should mention it's a method, not just a function
                 assert "Method" in v.message or "Calculator" in v.message or "DataProcessor" in v.message
     
+    @pytest.mark.unit
     def test_module_path_in_error_messages(self):
         """Test that error messages include the module path in the expected file path."""
         config = ProboscisConfig(
@@ -56,6 +58,7 @@ class TestPackageStructure:
         for v in violations:
             assert "/test/unit/pkg/mod1/test_submod.py" in v.message
             
+    @pytest.mark.unit
     def test_expected_test_location(self):
         """Test that error messages show the correct expected test location."""
         config = ProboscisConfig(
@@ -76,6 +79,7 @@ class TestPackageStructure:
             # The absolute path should contain the expected structure
             assert "/test/unit/pkg/mod1/test_submod.py" in v.message
             
+    @pytest.mark.unit
     def test_class_method_test_patterns(self):
         """Test that the expected test patterns for class methods include the class name."""
         config = ProboscisConfig(

@@ -10,6 +10,7 @@ from proboscis_linter.linter import ProboscisLinter
 from proboscis_linter.config import ProboscisConfig
 
 
+@pytest.mark.integration
 def test_all_rules_respect_module_all():
     """All rules (PL001-PL004) should respect __all__ in modules."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -71,6 +72,7 @@ class PrivateClass:
         assert rule_names == {'PL001', 'PL002', 'PL003'}
 
 
+@pytest.mark.integration
 def test_all_rules_respect_underscore_convention():
     """All rules should respect underscore convention when no __all__."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -125,6 +127,7 @@ class _PrivateClass:
         assert func_names == expected_funcs
 
 
+@pytest.mark.integration
 def test_pl004_respects_public_api():
     """PL004 should only check public test functions."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -137,6 +140,7 @@ def test_pl004_respects_public_api():
         test_file.write_text('''
 import pytest
 
+@pytest.mark.integration
 def test_public_needs_marker():
     """Public test - needs marker."""
     assert True
@@ -145,6 +149,7 @@ def _test_private_no_marker():
     """Private test - no marker needed."""
     assert True
 
+@pytest.mark.integration
 @pytest.mark.unit
 def test_public_has_marker():
     """Public test with marker - OK."""
@@ -152,6 +157,7 @@ def test_public_has_marker():
 
 class TestPublicClass:
     """Public test class."""
+    @pytest.mark.integration
     def test_needs_marker(self):
         """Needs marker."""
         pass
@@ -162,6 +168,7 @@ class TestPublicClass:
 
 class _TestPrivateClass:
     """Private test class."""
+    @pytest.mark.integration
     def test_no_marker_needed(self):
         """No marker needed - class is private."""
         pass
@@ -179,6 +186,7 @@ class _TestPrivateClass:
         assert func_names == expected
 
 
+@pytest.mark.integration
 def test_cli_with_public_only_mode():
     """CLI should respect public-only mode by default."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -216,6 +224,7 @@ def _private_func():
         assert func_names == {'public_func'}
 
 
+@pytest.mark.integration
 def test_strict_mode_configuration():
     """Test strict mode includes private functions."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -260,6 +269,7 @@ def _private_func():
         assert func_names == {'public_func', '_private_func'}
 
 
+@pytest.mark.integration
 def test_performance_with_large_codebase():
     """Test performance doesn't degrade with public/private detection."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -327,6 +337,7 @@ class _PrivateClass_{i}:
         assert len(violations) == expected_count
 
 
+@pytest.mark.integration
 def test_package_level_all():
     """Test package-level __all__ in __init__.py."""
     with tempfile.TemporaryDirectory() as tmpdir:

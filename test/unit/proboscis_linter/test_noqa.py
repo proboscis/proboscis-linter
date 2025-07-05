@@ -5,6 +5,7 @@ from proboscis_linter.linter import ProboscisLinter
 from proboscis_linter.config import ProboscisConfig
 
 
+@pytest.mark.unit
 def test_noqa_single_rule():
     """Test that #noqa PL001 suppresses PL001 violations."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -32,6 +33,7 @@ def test_noqa_single_rule():
         assert len(pl001_violations) == 0
 
 
+@pytest.mark.unit
 def test_noqa_with_colon():
     """Test that #noqa: PL001 (with colon) suppresses PL001 violations."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -59,6 +61,7 @@ def test_noqa_with_colon():
         assert len(pl001_violations) == 0
 
 
+@pytest.mark.unit
 def test_noqa_multiple_rules():
     """Test that #noqa PL001, PL002 suppresses multiple rules."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -92,6 +95,7 @@ def test_noqa_multiple_rules():
         assert len(pl003_violations) > 0
 
 
+@pytest.mark.unit
 def test_noqa_preserves_other_violations():
     """Test that noqa for one rule doesn't suppress other rules."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -126,6 +130,7 @@ def test_noqa_preserves_other_violations():
         assert len(pl001_violations) == 1
 
 
+@pytest.mark.unit
 def test_noqa_with_spaces():
     """Test that noqa comments work with various spacing."""
     with tempfile.TemporaryDirectory() as tmpdir:

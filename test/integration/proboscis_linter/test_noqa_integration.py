@@ -12,6 +12,7 @@ def run_linter(project_path: Path, *args) -> tuple[int, str, str]:
     return result.returncode, result.stdout, result.stderr
 
 
+@pytest.mark.integration
 def test_noqa_via_cli_text_format():
     """Test noqa functionality through CLI with text output."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -43,6 +44,7 @@ def test_noqa_via_cli_text_format():
         assert "func_without_noqa" in stdout
 
 
+@pytest.mark.integration
 def test_noqa_via_cli_json_format():
     """Test noqa functionality through CLI with JSON output."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -91,6 +93,7 @@ def test_noqa_via_cli_json_format():
         assert any("PL003" in v["rule"] for v in func3_violations)
 
 
+@pytest.mark.integration
 def test_noqa_in_class_methods():
     """Test noqa comments in class methods."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -125,6 +128,7 @@ def test_noqa_in_class_methods():
         assert any("PL001" in v["rule"] for v in method_without_noqa_violations)
 
 
+@pytest.mark.integration
 def test_noqa_fail_on_error():
     """Test that noqa suppressed violations don't cause failure with --fail-on-error."""
     with tempfile.TemporaryDirectory() as tmpdir:

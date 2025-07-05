@@ -9,6 +9,7 @@ from proboscis_linter.config import ProboscisConfig
 class TestPublicApiDetectionWithAll:
     """Test public API detection when __all__ is present."""
     
+    @pytest.mark.unit
     def test_module_with_all_only_includes_listed_functions(self):
         """Only functions in __all__ should be considered public."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -49,6 +50,7 @@ def _private_func():
             func_names = {v.function_name for v in pl001_violations}
             assert func_names == {'public_func1', 'public_func2'}
     
+    @pytest.mark.unit
     def test_module_with_all_includes_listed_classes(self):
         """Only classes in __all__ should be considered public."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -91,6 +93,7 @@ class _PrivateClass:
             assert len(pl001_violations) == 1
             assert pl001_violations[0].function_name == 'public_method'
     
+    @pytest.mark.unit
     def test_package_init_with_all(self):
         """Package __init__.py with __all__ controls module exports."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -136,6 +139,7 @@ def internal_func():
 class TestPublicApiDetectionWithoutAll:
     """Test public API detection when __all__ is not present."""
     
+    @pytest.mark.unit
     def test_underscore_prefix_marks_functions_private(self):
         """Functions with _ prefix should be considered private."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -170,6 +174,7 @@ def __double_underscore():
             assert len(pl001_violations) == 1
             assert pl001_violations[0].function_name == 'public_func'
     
+    @pytest.mark.unit
     def test_underscore_prefix_marks_classes_private(self):
         """Classes with _ prefix should be considered private."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -205,6 +210,7 @@ class _PrivateClass:
 class TestClassMethodVisibility:
     """Test visibility rules for class methods."""
     
+    @pytest.mark.unit
     def test_private_methods_always_excluded(self):
         """Methods with _ prefix are private regardless of class visibility."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -239,6 +245,7 @@ class PublicClass:
             assert len(pl001_violations) == 1
             assert pl001_violations[0].function_name == 'public_method'
     
+    @pytest.mark.unit
     def test_special_methods_excluded(self):
         """Special methods like __init__ should be excluded from test requirements."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -281,6 +288,7 @@ class MyClass:
 class TestComplexScenarios:
     """Test complex scenarios combining different visibility rules."""
     
+    @pytest.mark.unit
     def test_nested_classes_respect_visibility(self):
         """Nested classes should respect parent and own visibility."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -325,6 +333,7 @@ class _OuterPrivate:
             func_names = {v.function_name for v in violations}
             assert func_names == expected
     
+    @pytest.mark.unit
     def test_all_overrides_underscore_convention(self):
         """When __all__ is present, it overrides underscore convention."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -369,6 +378,7 @@ def not_listed():
 class TestConfigurationOptions:
     """Test configuration options for public/private detection."""
     
+    @pytest.mark.unit
     def test_strict_mode_includes_private_functions(self):
         """Strict mode should include private functions."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -400,6 +410,7 @@ def _private_func():
             func_names = {v.function_name for v in pl001_violations}
             assert func_names == {'public_func', '_private_func'}
     
+    @pytest.mark.unit
     def test_public_only_mode_default(self):
         """Public-only mode should be the default."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -431,6 +442,7 @@ def _private_func():
 class TestEdgeCases:
     """Test edge cases in public/private detection."""
     
+    @pytest.mark.unit
     def test_empty_all_makes_everything_private(self):
         """Empty __all__ should make all functions private."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -456,6 +468,7 @@ def func2():
             # Should find no violations - everything is private
             assert len(violations) == 0
     
+    @pytest.mark.unit
     def test_invalid_all_falls_back_to_underscore_convention(self):
         """Invalid __all__ should fall back to underscore convention."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -485,6 +498,7 @@ def _private_func():
             assert len(pl001_violations) == 1
             assert pl001_violations[0].function_name == 'public_func'
     
+    @pytest.mark.unit
     def test_property_methods_treated_as_public(self):
         """Property methods should be treated as public if not prefixed."""
         with tempfile.TemporaryDirectory() as tmpdir:

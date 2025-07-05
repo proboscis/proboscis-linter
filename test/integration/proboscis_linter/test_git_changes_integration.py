@@ -19,6 +19,7 @@ def init_git_repo(path: Path):
     subprocess.run(["git", "config", "user.name", "Test User"], cwd=path, check=True, capture_output=True)
 
 
+@pytest.mark.integration
 def test_changed_only_flag_no_git():
     """Test --changed-only flag when not in a git repository."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -42,6 +43,7 @@ def test_changed_only_flag_no_git():
         assert "Not in a git repository" in stderr or "Not in a git repository" in stdout
 
 
+@pytest.mark.integration
 def test_changed_only_with_unstaged_changes():
     """Test --changed-only flag with unstaged changes."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -92,6 +94,7 @@ def test_changed_only_with_unstaged_changes():
         assert any(v["function"] == "new_func" for v in violations)
 
 
+@pytest.mark.integration
 def test_changed_only_with_staged_changes():
     """Test --changed-only flag with staged changes."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -149,6 +152,7 @@ def test_changed_only_with_staged_changes():
         assert any("file2.py" in v["file"] for v in violations)
 
 
+@pytest.mark.integration
 def test_changed_only_with_untracked_files():
     """Test --changed-only flag with untracked files."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -189,6 +193,7 @@ def test_changed_only_with_untracked_files():
         assert any(v["function"] == "untracked_func" for v in violations)
 
 
+@pytest.mark.integration
 def test_changed_only_no_changes():
     """Test --changed-only flag when there are no changes."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -218,6 +223,7 @@ def test_changed_only_no_changes():
         assert "No violations found" in stdout
 
 
+@pytest.mark.integration
 def test_changed_only_combined_with_noqa():
     """Test --changed-only flag combined with noqa comments."""
     with tempfile.TemporaryDirectory() as tmpdir:

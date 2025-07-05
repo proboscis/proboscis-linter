@@ -6,6 +6,7 @@ from proboscis_linter.rust_linter import RustLinterWrapper
 from proboscis_linter.config import ProboscisConfig
 
 
+@pytest.mark.unit
 def test_pl004_ignores_private_test_functions():
     """PL004 should not require markers on private test functions."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -17,6 +18,7 @@ def test_pl004_ignores_private_test_functions():
         test_file = test_dir / "test_example.py"
         
         test_file.write_text('''
+@pytest.mark.unit
 def test_public_function():
     """Public test - requires marker."""
     pass
@@ -42,6 +44,7 @@ def test_with_marker():
         assert pl004_violations[0].function_name == "test_public_function"
 
 
+@pytest.mark.unit
 def test_pl004_respects_test_module_all():
     """PL004 should respect __all__ in test modules."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -55,10 +58,12 @@ def test_pl004_respects_test_module_all():
         test_file.write_text('''
 __all__ = ['test_exported']
 
+@pytest.mark.unit
 def test_exported():
     """Exported test - requires marker."""
     pass
 
+@pytest.mark.unit
 def test_not_exported():
     """Not exported - no marker needed."""
     pass
@@ -80,6 +85,7 @@ def test_also_not_exported():
         assert pl004_violations[0].function_name == "test_exported"
 
 
+@pytest.mark.unit
 def test_pl004_with_test_classes():
     """PL004 should handle test classes correctly."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -93,6 +99,7 @@ def test_pl004_with_test_classes():
         test_file.write_text('''
 class TestPublicClass:
     """Public test class."""
+    @pytest.mark.unit
     def test_method(self):
         """Public test method - requires marker."""
         pass
@@ -101,6 +108,7 @@ class TestPublicClass:
         """Private helper - no marker needed."""
         pass
     
+    @pytest.mark.unit
     @pytest.mark.integration
     def test_with_marker(self):
         """Has marker - no violation."""
@@ -108,6 +116,7 @@ class TestPublicClass:
 
 class _TestPrivateClass:
     """Private test class - all methods exempt."""
+    @pytest.mark.unit
     def test_method(self):
         """Method in private class - no marker needed."""
         pass
@@ -124,6 +133,7 @@ class _TestPrivateClass:
         assert pl004_violations[0].function_name == "test_method"
 
 
+@pytest.mark.unit
 def test_pl004_strict_mode():
     """PL004 in strict mode should check all test functions."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -135,6 +145,7 @@ def test_pl004_strict_mode():
         test_file = test_dir / "test_strict.py"
         
         test_file.write_text('''
+@pytest.mark.unit
 def test_public():
     """Public test."""
     pass
@@ -159,6 +170,7 @@ def _test_private():
         assert func_names == {"test_public", "_test_private"}
 
 
+@pytest.mark.unit
 def test_pl004_with_nested_test_functions():
     """PL004 should handle nested test functions correctly."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -170,9 +182,11 @@ def test_pl004_with_nested_test_functions():
         test_file = test_dir / "test_nested.py"
         
         test_file.write_text('''
+@pytest.mark.unit
 def test_outer():
     """Outer test function - requires marker."""
     
+    @pytest.mark.unit
     def test_inner():
         """Inner function - should be ignored."""
         pass
@@ -195,6 +209,7 @@ def test_outer():
         assert pl004_violations[0].function_name == "test_outer"
 
 
+@pytest.mark.unit
 def test_pl004_parametrized_tests():
     """PL004 should handle parametrized tests correctly."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -208,6 +223,7 @@ def test_pl004_parametrized_tests():
         test_file.write_text('''
 import pytest
 
+@pytest.mark.unit
 @pytest.mark.parametrize("x,y", [(1, 2), (3, 4)])
 def test_public_parametrized(x, y):
     """Public parametrized test - requires unit marker too."""

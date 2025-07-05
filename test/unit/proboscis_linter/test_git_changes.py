@@ -14,6 +14,7 @@ def init_git_repo(path: Path):
     subprocess.run(["git", "config", "user.name", "Test User"], cwd=path, check=True, capture_output=True)
 
 
+@pytest.mark.unit
 def test_lint_changed_files_no_git_repo():
     """Test that lint_changed_files raises error when not in a git repo."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -38,6 +39,7 @@ def test_lint_changed_files_no_git_repo():
             linter.lint_changed_files(tmpdir_path)
 
 
+@pytest.mark.unit
 def test_lint_changed_files_unstaged():
     """Test linting files with unstaged changes."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -80,6 +82,7 @@ def test_lint_changed_files_unstaged():
         # Might also have violations for existing_function since the whole file is considered changed
 
 
+@pytest.mark.unit
 def test_lint_changed_files_staged():
     """Test linting files with staged changes."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -129,6 +132,7 @@ def test_lint_changed_files_staged():
         assert not any(str(file2) in str(v.file_path) for v in violations)
 
 
+@pytest.mark.unit
 def test_lint_changed_files_untracked():
     """Test linting untracked files."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -169,6 +173,7 @@ def test_lint_changed_files_untracked():
         assert not any("existing.py" in str(v.file_path) for v in violations)
 
 
+@pytest.mark.unit
 def test_lint_changed_files_no_changes():
     """Test linting when there are no changes."""
     with tempfile.TemporaryDirectory() as tmpdir:
