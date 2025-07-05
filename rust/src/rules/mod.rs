@@ -1,6 +1,7 @@
 pub mod pl001_require_test;
 pub mod pl002_require_integration_test;
 pub mod pl003_require_e2e_test;
+pub mod pl004_require_test_markers;
 
 use crate::models::LintViolation;
 use std::path::Path;

@@ -14,8 +14,8 @@ use std::path::Path;
 
 use crate::file_discovery::find_python_files;
 use crate::models::LintViolation;
-use crate::rules::get_all_rules;
-use crate::test_cache::{TestCache, TestType};
+use crate::rules::{get_all_rules, pl004_require_test_markers::check_test_markers};
+use crate::test_cache::TestCache;
 
 #[pyclass]
 #[derive(Clone)]
@@ -103,6 +103,16 @@ impl RustLinter {
             .flatten()
             .collect();
         
+        Ok(violations)
+    }
+    
+    fn check_test_markers(&self, project_root: &str) -> PyResult<Vec<LintViolation>> {
+        let project_path = Path::new(project_root);
+        let violations = check_test_markers(
+            project_path.to_path_buf(),
+            self.test_directories.clone(),
+            self.exclude_patterns.clone(),
+        )?;
         Ok(violations)
     }
 }
