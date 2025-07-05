@@ -33,8 +33,13 @@ class RustLinterWrapper:
         with logger.contextualize(project_root=str(project_root)):
             logger.info(f"Linting project with Rust implementation: {project_root}")
             
-            # Call Rust implementation
+            # Call Rust implementation for source file checks (PL001, PL002, PL003)
             rust_violations = self._rust_linter.lint_project(str(project_root))
+            
+            # Check test markers (PL004) if enabled
+            if self._config.is_rule_enabled("PL004"):
+                test_marker_violations = self._rust_linter.check_test_markers(str(project_root))
+                rust_violations.extend(test_marker_violations)
             
             # Convert Rust violations to Python models
             violations = []
@@ -86,6 +91,12 @@ class RustLinterWrapper:
             
             # Call Rust implementation
             rust_violations = self._rust_linter.lint_changed_files(str(project_root))
+            
+            # For PL004, we need to check all test files since changed source files might need test markers
+            # This is intentionally checking all test files, not just changed ones
+            if self._config.is_rule_enabled("PL004"):
+                test_marker_violations = self._rust_linter.check_test_markers(str(project_root))
+                rust_violations.extend(test_marker_violations)
             
             # Convert Rust violations to Python models
             violations = []

@@ -150,7 +150,7 @@ class ConfigLoader:
         merged_data = config.model_dump()
         
         # Override with CLI options if provided
-        if cli_options.get("format"):
+        if cli_options.get("format") is not None:
             merged_data["output_format"] = cli_options["format"]
         
         if cli_options.get("fail_on_error") is not None:
