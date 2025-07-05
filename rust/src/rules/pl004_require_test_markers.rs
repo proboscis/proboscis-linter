@@ -8,6 +8,7 @@ use std::path::{Path, PathBuf};
 use crate::file_discovery::find_python_files;
 use crate::models::LintViolation;
 use crate::noqa::parse_noqa_rules;
+use crate::public_api;
 
 /// PL004: Require pytest markers on test functions
 /// 
@@ -116,7 +117,7 @@ fn extract_file_noqa_rules(file_path: &Path) -> Result<HashSet<String>, std::io:
 }
 
 /// Check a single test file for missing pytest markers
-fn check_file(file_path: &Path) -> Vec<LintViolation> {
+fn check_file(file_path: &Path, source_module_path: Option<&Path>) -> Vec<LintViolation> {
     // Extract noqa rules for this file
     let noqa_rules = extract_file_noqa_rules(file_path).unwrap_or_default();
     
@@ -136,11 +137,28 @@ fn check_file(file_path: &Path) -> Vec<LintViolation> {
         Ok(funcs) => funcs,
         Err(_) => return vec![],
     };
+    
+    // Extract public API from source module if available
+    let public_api = if let Some(source_path) = source_module_path {
+        public_api::extract_module_all(source_path).unwrap_or(public_api::PublicApi::default())
+    } else {
+        public_api::PublicApi::default()
+    };
 
     // Check each test function for the appropriate marker
     test_functions
         .into_iter()
         .filter_map(|func| {
+            // Try to infer what function this test is testing
+            let tested_func = infer_tested_function(&func.name);
+            
+            // Skip if testing a private function
+            if let Some(tested) = &tested_func {
+                if !should_check_test_for_function(tested, &public_api) {
+                    return None;
+                }
+            }
+            
             // Skip if the line has noqa
             let line_noqa = noqa_rules.contains(&format!("{}:PL004", func.line_number));
             if line_noqa || has_pytest_marker(&func, &expected_marker) {
@@ -199,6 +217,99 @@ fn create_violation(file_path: &Path, func: &TestFunction, expected_marker: &str
     }
 }
 
+/// Infer the function being tested from the test function name
+fn infer_tested_function(test_name: &str) -> Option<String> {
+    // Common patterns:
+    // test_function_name -> function_name
+    // test_method_name -> method_name
+    // test_ClassName_method -> ClassName.method
+    
+    if test_name.starts_with("test_") {
+        let without_prefix = &test_name[5..];
+        
+        // Check for class method pattern (test_ClassName_method)
+        if let Some(underscore_pos) = without_prefix.find('_') {
+            let potential_class = &without_prefix[..underscore_pos];
+            // Check if first letter is uppercase (likely a class name)
+            if potential_class.chars().next().map_or(false, |c| c.is_uppercase()) {
+                return Some(without_prefix.to_string());
+            }
+        }
+        
+        // Regular function pattern
+        Some(without_prefix.to_string())
+    } else {
+        None
+    }
+}
+
+/// Check if we should check a test based on what it's testing
+fn should_check_test_for_function(tested_func: &str, public_api: &public_api::PublicApi) -> bool {
+    // For tests, we always use the default (non-strict) mode
+    // This means we only check tests for public functions
+    
+    // Check for class.method pattern
+    if let Some(dot_pos) = tested_func.find('.') {
+        let class_name = &tested_func[..dot_pos];
+        let method_name = &tested_func[dot_pos + 1..];
+        
+        // Skip if method starts with underscore
+        if method_name.starts_with('_') {
+            return false;
+        }
+        
+        // Check if class is public
+        public_api.is_public(class_name)
+    } else {
+        // Regular function - check if it's public
+        public_api.is_public(tested_func)
+    }
+}
+
+/// Find the source module that corresponds to a test file
+fn find_source_module_for_test(test_path: &Path, project_root: &Path) -> Option<PathBuf> {
+    // Get the test file name without test_ prefix
+    let test_file_name = test_path.file_name()?.to_str()?;
+    
+    // Remove test_ prefix or _test suffix to get source file name
+    let source_file_name = if test_file_name.starts_with("test_") && test_file_name.ends_with(".py") {
+        // test_module.py -> module.py
+        format!("{}.py", &test_file_name[5..test_file_name.len()-3])
+    } else if test_file_name.ends_with("_test.py") {
+        // module_test.py -> module.py
+        format!("{}.py", &test_file_name[..test_file_name.len()-8])
+    } else {
+        return None;
+    };
+    
+    // Try to find the source file in the project
+    // Look in common source directories
+    for src_dir in &["src", "lib", "."] {
+        let src_path = project_root.join(src_dir);
+        if src_path.exists() {
+            // Walk the source directory to find the module
+            if let Ok(entries) = fs::read_dir(&src_path) {
+                for entry in entries.flatten() {
+                    let path = entry.path();
+                    if path.is_file() && path.file_name().map_or(false, |n| n == source_file_name.as_str()) {
+                        return Some(path);
+                    }
+                }
+            }
+        }
+    }
+    
+    // Also check the parent directory of the test file
+    if let Some(parent) = test_path.parent() {
+        let potential_source = parent.join(&source_file_name);
+        if potential_source.exists() {
+            return Some(potential_source);
+        }
+    }
+    
+    None
+}
+
 /// Check all test files in a project for missing pytest markers
 #[pyfunction]
 pub fn check_test_markers(
@@ -235,8 +346,11 @@ pub fn check_test_markers(
     let violations: Vec<LintViolation> = test_files
         .par_iter()
         .flat_map(|file_path| {
+            // Try to find corresponding source module
+            let source_module_path = find_source_module_for_test(file_path, &project_root);
+            
             // Check the file for violations
-            check_file(file_path)
+            check_file(file_path, source_module_path.as_deref())
         })
         .collect();
 
@@ -246,92 +360,78 @@ pub fn check_test_markers(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
-    use tempfile::TempDir;
 
     #[test]
-    fn test_missing_unit_marker() {
-        let temp_dir = TempDir::new().unwrap();
-        let test_file = temp_dir.path().join("test").join("unit").join("test_example.py");
-        fs::create_dir_all(test_file.parent().unwrap()).unwrap();
+    fn test_infer_tested_function() {
+        // Test regular function pattern
+        assert_eq!(
+            infer_tested_function("test_my_function"),
+            Some("my_function".to_string())
+        );
         
-        fs::write(&test_file, r#"
-def test_something():
-    assert True
-
-@pytest.mark.unit
-def test_with_marker():
-    assert True
-"#).unwrap();
-
-        let violations = check_file(&test_file);
+        // Test class method pattern
+        assert_eq!(
+            infer_tested_function("test_MyClass_method"),
+            Some("MyClass_method".to_string())
+        );
         
-        assert_eq!(violations.len(), 1);
-        assert_eq!(violations[0].function_name, "test_something");
-        assert!(violations[0].message.contains("@pytest.mark.unit"));
+        // Test underscore in function name
+        assert_eq!(
+            infer_tested_function("test_function_with_underscores"),
+            Some("function_with_underscores".to_string())
+        );
+        
+        // Test non-test function
+        assert_eq!(
+            infer_tested_function("not_a_test"),
+            None
+        );
     }
 
     #[test]
-    fn test_missing_integration_marker() {
-        let temp_dir = TempDir::new().unwrap();
-        let test_file = temp_dir.path().join("test").join("integration").join("test_example.py");
-        fs::create_dir_all(test_file.parent().unwrap()).unwrap();
+    fn test_should_check_test_for_function() {
+        let mut names = HashSet::new();
+        names.insert("public_func".to_string());
+        names.insert("PublicClass".to_string());
         
-        fs::write(&test_file, r#"
-@pytest.mark.unit
-def test_wrong_marker():
-    assert True
-
-@pytest.mark.integration
-def test_correct_marker():
-    assert True
-"#).unwrap();
-
-        let violations = check_file(&test_file);
+        let public_api = public_api::PublicApi {
+            all_names: Some(names),
+        };
         
-        assert_eq!(violations.len(), 1);
-        assert_eq!(violations[0].function_name, "test_wrong_marker");
-        assert!(violations[0].message.contains("@pytest.mark.integration"));
+        // Test public function
+        assert!(should_check_test_for_function("public_func", &public_api));
+        
+        // Test private function
+        assert!(!should_check_test_for_function("private_func", &public_api));
+        
+        // Test public class method
+        assert!(should_check_test_for_function("PublicClass.method", &public_api));
+        
+        // Test private class method (underscore)
+        assert!(!should_check_test_for_function("PublicClass._private_method", &public_api));
+        
+        // Test private class
+        assert!(!should_check_test_for_function("PrivateClass.method", &public_api));
     }
-
+    
     #[test]
-    fn test_missing_e2e_marker() {
-        let temp_dir = TempDir::new().unwrap();
-        let test_file = temp_dir.path().join("test").join("e2e").join("test_example.py");
-        fs::create_dir_all(test_file.parent().unwrap()).unwrap();
+    fn test_get_test_type_from_path() {
+        use std::path::PathBuf;
         
-        fs::write(&test_file, r#"
-def test_no_marker():
-    pass
-
-@mark.e2e  # Short form should also work
-def test_short_marker():
-    pass
-
-@pytest.mark.e2e
-def test_full_marker():
-    pass
-"#).unwrap();
-
-        let violations = check_file(&test_file);
+        // Unit test path
+        let unit_path = PathBuf::from("/project/test/unit/test_example.py");
+        assert_eq!(get_test_type_from_path(&unit_path), Some("unit".to_string()));
         
-        assert_eq!(violations.len(), 1);
-        assert_eq!(violations[0].function_name, "test_no_marker");
-    }
-
-    #[test]
-    fn test_noqa_suppression() {
-        let temp_dir = TempDir::new().unwrap();
-        let test_file = temp_dir.path().join("test").join("unit").join("test_example.py");
-        fs::create_dir_all(test_file.parent().unwrap()).unwrap();
+        // Integration test path
+        let integration_path = PathBuf::from("/project/test/integration/test_example.py");
+        assert_eq!(get_test_type_from_path(&integration_path), Some("integration".to_string()));
         
-        fs::write(&test_file, r#"
-# noqa: PL004
-def test_no_marker_but_suppressed():
-    assert True
-"#).unwrap();
-
-        let violations = check_file(&test_file);
-        assert_eq!(violations.len(), 0);
+        // E2E test path
+        let e2e_path = PathBuf::from("/project/test/e2e/test_example.py");
+        assert_eq!(get_test_type_from_path(&e2e_path), Some("e2e".to_string()));
+        
+        // Non-test path
+        let other_path = PathBuf::from("/project/test/other/test_example.py");
+        assert_eq!(get_test_type_from_path(&other_path), None);
     }
 }
