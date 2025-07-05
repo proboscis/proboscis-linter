@@ -1,0 +1,62 @@
+[project]
+name = "proboscis-linter"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "proboscis", email = "nameissoap@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.1.0",
+    "loguru>=0.7.0",
+    "pydantic>=2.0.0",
+    "typing-extensions>=4.0.0",
+]
+
+[project.scripts]
+proboscis-linter = "proboscis_linter:main"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-testmon>=2.1.3",
+    "maturin>=1.7.0",
+]
+
+[build-system]
+requires = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
+
+[tool.maturin]
+module-name = "proboscis_linter.proboscis_linter_rust"
+python-source = "src"
+features = ["pyo3/extension-module"]
+
+[tool.proboscis]
+# Test discovery configuration
+test_directories = ["test", "tests"]
+test_patterns = ["test_*.py", "*_test.py"]
+
+# File filtering
+exclude_patterns = [
+    "**/__pycache__/**",
+    "**/migrations/**",
+    "**/.venv/**"
+]
+
+# Rule configuration
+[tool.proboscis.rules]
+# Enable/disable specific rules
+PL001 = true  # require-test rule
+
+# Or use detailed configuration
+# [tool.proboscis.rules.PL001]
+# enabled = true
+# options = {}
+
+# Output configuration
+output_format = "text"  # or "json"
+fail_on_error = false

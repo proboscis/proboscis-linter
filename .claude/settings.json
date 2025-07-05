@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run python /Users/s22625/repos/proboscis-linter/proboscis_stop_hook.py",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  }
+}
