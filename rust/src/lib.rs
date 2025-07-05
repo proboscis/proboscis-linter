@@ -2,6 +2,7 @@ mod file_discovery;
 mod git;
 mod models;
 mod noqa;
+mod public_api;
 mod rules;
 mod test_cache;
 mod test_discovery;
@@ -23,6 +24,7 @@ pub struct RustLinter {
     test_directories: Vec<String>,
     test_patterns: Vec<String>,
     exclude_patterns: Vec<String>,
+    strict_mode: bool,
     function_regex: Regex,
     class_regex: Regex,
 }
@@ -30,16 +32,18 @@ pub struct RustLinter {
 #[pymethods]
 impl RustLinter {
     #[new]
-    #[pyo3(signature = (test_directories=None, test_patterns=None, exclude_patterns=None))]
+    #[pyo3(signature = (test_directories=None, test_patterns=None, exclude_patterns=None, strict_mode=None))]
     fn new(
         test_directories: Option<Vec<String>>,
         test_patterns: Option<Vec<String>>,
         exclude_patterns: Option<Vec<String>>,
+        strict_mode: Option<bool>,
     ) -> PyResult<Self> {
         Ok(Self {
             test_directories: test_directories.unwrap_or_else(|| vec!["test".to_string(), "tests".to_string()]),
             test_patterns: test_patterns.unwrap_or_else(|| vec!["test_*.py".to_string(), "*_test.py".to_string()]),
             exclude_patterns: exclude_patterns.unwrap_or_default(),
+            strict_mode: strict_mode.unwrap_or(false),
             function_regex: Regex::new(r"^(\s*)def\s+(\w+)\s*\(").unwrap(),
             class_regex: Regex::new(r"^(\s*)class\s+(\w+)").unwrap(),
         })
@@ -183,6 +187,9 @@ impl RustLinter {
         // Get module path for this file
         let module_path = Self::get_module_path(path, project_root);
         
+        // Extract public API for this module
+        let public_api = public_api::extract_module_all(path).unwrap_or(public_api::PublicApi::default());
+        
         let mut violations = Vec::new();
         let mut current_class = None;
         let mut in_protocol = false;
@@ -209,10 +216,16 @@ impl RustLinter {
                     project_root,
                 };
                 
+                // Check if function should be checked based on public API
+                let is_method = current_class.is_some() && !indent.is_empty();
+                let class_name = if is_method { current_class.as_deref() } else { None };
+                
+                if !public_api::should_check_function(function_name, class_name, &public_api, self.strict_mode) {
+                    continue;
+                }
+                
                 // Check against all rules
                 for rule in rules {
-                    // If we have a current class and the function is indented, it's a method
-                    let is_method = current_class.is_some() && !indent.is_empty();
                     let is_protocol_method = in_protocol && is_method;
                     
                     if let Some(violation) = rule.check_function(
@@ -220,7 +233,7 @@ impl RustLinter {
                         path,
                         line_num + 1,
                         line,
-                        if is_method { current_class.as_deref() } else { None },
+                        class_name,
                         is_protocol_method,
                         &context,
                     ) {

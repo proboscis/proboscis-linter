@@ -41,8 +41,8 @@ impl LintRule for PL003RequireE2ETest {
             return None;
         }
         
-        // Skip __init__ and private methods
-        if function_name == "__init__" || function_name.starts_with('_') {
+        // Skip __init__ (special case)
+        if function_name == "__init__" {
             return None;
         }
         
