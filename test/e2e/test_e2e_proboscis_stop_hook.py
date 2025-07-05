@@ -8,6 +8,7 @@ from pathlib import Path
 sys.path.insert(0, '/Users/s22625/repos/proboscis-linter')
 
 
+@pytest.mark.e2e
 def test_main():
     """Test the main function in a real environment context."""
     # Get the path to the hook script

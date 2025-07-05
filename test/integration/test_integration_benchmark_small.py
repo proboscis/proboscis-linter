@@ -8,6 +8,7 @@ sys.path.insert(0, '.')
 from benchmark_small import main
 
 
+@pytest.mark.integration
 def test_main():
     """Test the main function integration with real file system."""
     # Test with temporary directory
@@ -59,6 +60,7 @@ def test_main():
         sys.argv = original_argv
 
 
+@pytest.mark.integration
 def test_main_with_complex_project_structure():
     """Test with a more complex project structure."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -93,6 +95,7 @@ def test_main_with_complex_project_structure():
                     assert any("Violations found: 3" in str(call) for call in mock_print.call_args_list)
 
 
+@pytest.mark.integration
 def test_main_config_loading():
     """Test configuration loading in integration context."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -124,6 +127,7 @@ max_line_length = 120
                 assert config_arg.__class__.__name__ == 'ProboscisConfig'
 
 
+@pytest.mark.integration
 def test_main_import_error_handling():
     """Test ImportError handling in integration context."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -141,6 +145,7 @@ def test_main_import_error_handling():
                     assert any("Run 'maturin develop'" in call for call in print_calls)
 
 
+@pytest.mark.integration
 def test_main_performance_measurement():
     """Test that performance measurement works correctly."""
     with tempfile.TemporaryDirectory() as tmpdir:

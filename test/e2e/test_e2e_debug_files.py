@@ -10,6 +10,7 @@ import pytest
 class TestMain:
     """End-to-end test cases for main function."""
 
+    @pytest.mark.e2e
     def test_main_script_execution(self):
         """Test executing debug_files.py as a script."""
         # Create a temporary directory with Python files
@@ -59,6 +60,7 @@ class NoDocstringClass:
             assert result.returncode == 1
             assert "AttributeError: 'ProboscisLinter' object has no attribute '_find_python_files'" in result.stderr
 
+    @pytest.mark.e2e
     def test_main_with_complex_project_structure(self):
         """Test debug_files with a more complex project structure."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -102,6 +104,7 @@ def format_string(s):
 '''Tests for core module.'''
 import pytest
 
+@pytest.mark.e2e
 def test_main():
     '''Test main function.'''
     assert True
@@ -124,6 +127,7 @@ def test_main():
             assert result.returncode == 1
             assert "AttributeError: 'ProboscisLinter' object has no attribute '_find_python_files'" in result.stderr
 
+    @pytest.mark.e2e
     def test_main_empty_directory(self):
         """Test debug_files in an empty directory."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -140,6 +144,7 @@ def test_main():
             assert result.returncode == 1
             assert "AttributeError: 'ProboscisLinter' object has no attribute '_find_python_files'" in result.stderr
 
+    @pytest.mark.e2e
     def test_main_with_symlinks(self):
         """Test debug_files handling of symbolic links."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -169,6 +174,7 @@ def test_main():
             assert result.returncode == 1
             assert "AttributeError: 'ProboscisLinter' object has no attribute '_find_python_files'" in result.stderr
 
+    @pytest.mark.e2e
     def test_main_with_permission_errors(self):
         """Test debug_files handling of files with permission errors."""
         import os
@@ -210,6 +216,7 @@ def test_main():
                 # Restore permissions for cleanup
                 os.chmod(restricted_dir, stat.S_IRWXU)
 
+    @pytest.mark.e2e
     def test_main_output_format(self):
         """Test that the output format is consistent and readable."""
         with tempfile.TemporaryDirectory() as tmpdir:

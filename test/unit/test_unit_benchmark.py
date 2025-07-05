@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import benchmark
 
 
+@pytest.mark.unit
 def test_benchmark_implementation():
     """Test the benchmark_implementation function."""
     # Arrange
@@ -47,6 +48,7 @@ def test_benchmark_implementation():
 class TestBenchmarkImplementation:
     """Test cases for benchmark_implementation function."""
 
+    @pytest.mark.unit
     def test_benchmark_implementation_success(self):
         """Test successful benchmarking of a linter implementation."""
         # Arrange
@@ -84,6 +86,7 @@ class TestBenchmarkImplementation:
         assert violation_count == 2
         mock_linter.lint_project.assert_called_once_with(project_path)
 
+    @pytest.mark.unit
     def test_benchmark_implementation_no_violations(self):
         """Test benchmarking when no violations are found."""
         # Arrange
@@ -103,6 +106,7 @@ class TestBenchmarkImplementation:
         assert violation_count == 0
         mock_linter.lint_project.assert_called_once_with(project_path)
 
+    @pytest.mark.unit
     def test_benchmark_implementation_prints_results(self):
         """Test that benchmark results are printed correctly."""
         # Arrange
@@ -122,6 +126,7 @@ class TestBenchmarkImplementation:
         assert any("Time:" in str(call) and "seconds" in str(call) for call in calls)
         assert any("Violations found: 3" in str(call) for call in calls)
 
+    @pytest.mark.unit
     def test_benchmark_implementation_timing_accuracy(self):
         """Test that timing measurement is accurate."""
         # Arrange
@@ -149,6 +154,7 @@ class TestBenchmarkImplementation:
 class TestMain:
     """Test cases for main function."""
 
+    @pytest.mark.unit
     def test_main_no_arguments(self):
         """Test main function with no command line arguments."""
         # Arrange
@@ -162,6 +168,7 @@ class TestMain:
             assert exc_info.value.code == 1
             mock_print.assert_called_with("Usage: python benchmark.py <project_path>")
 
+    @pytest.mark.unit
     def test_main_nonexistent_path(self):
         """Test main function with a non-existent project path."""
         # Arrange
@@ -176,6 +183,7 @@ class TestMain:
             assert exc_info.value.code == 1
             mock_print.assert_called_with(f"Error: {nonexistent_path} does not exist")
 
+    @pytest.mark.unit
     @patch('benchmark.ProboscisConfig')
     @patch('benchmark.ProboscisLinter')
     @patch('benchmark.RustLinterWrapper')
@@ -210,6 +218,7 @@ class TestMain:
                 calls = [str(call) for call in mock_print.call_args_list]
                 assert any("Rust is 5.00x faster than Python" in call for call in calls)
 
+    @pytest.mark.unit
     @patch('benchmark.ProboscisConfig')
     @patch('benchmark.ProboscisLinter')
     @patch('benchmark.RustLinterWrapper')
@@ -242,6 +251,7 @@ class TestMain:
                 assert any("Python: 100" in call for call in calls)
                 assert any("Rust: 95" in call for call in calls)
 
+    @pytest.mark.unit
     @patch('benchmark.ProboscisConfig')
     @patch('benchmark.ProboscisLinter')
     @patch('benchmark.RustLinterWrapper')
@@ -276,6 +286,7 @@ class TestMain:
                 assert any("Rust implementation not available" in call for call in calls)
                 assert any("Run 'maturin develop'" in call for call in calls)
 
+    @pytest.mark.unit
     @patch('benchmark.ProboscisConfig')
     @patch('benchmark.ProboscisLinter')
     @patch('benchmark.RustLinterWrapper')

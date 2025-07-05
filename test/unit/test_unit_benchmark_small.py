@@ -7,6 +7,7 @@ sys.path.insert(0, '.')
 from benchmark_small import main
 
 
+@pytest.mark.unit
 def test_main():
     """Test the main function of benchmark_small."""
     # Test with missing command line argument
@@ -70,6 +71,7 @@ def test_main():
                         assert any("Run 'maturin develop' to build the Rust extension" in str(call) for call in print_calls)
 
 
+@pytest.mark.unit
 def test_main_edge_cases():
     """Test edge cases for the main function."""
     # Test with empty violations list
@@ -96,6 +98,7 @@ def test_main_edge_cases():
                             assert any("Processing speed: 7720 files/second" in str(call) for call in print_calls)
 
 
+@pytest.mark.unit
 def test_main_performance_edge_case():
     """Test performance calculation edge cases."""
     mock_path = Mock(spec=Path)
@@ -120,6 +123,7 @@ def test_main_performance_edge_case():
                             assert any("Processing speed: 772000 files/second" in str(call) for call in print_calls)
 
 
+@pytest.mark.unit
 def test_main_rust_linter_exception():
     """Test handling of exceptions from RustLinterWrapper."""
     mock_path = Mock(spec=Path)

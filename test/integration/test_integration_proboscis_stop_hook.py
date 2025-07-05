@@ -9,6 +9,7 @@ from pathlib import Path
 sys.path.insert(0, '/Users/s22625/repos/proboscis-linter')
 
 
+@pytest.mark.integration
 def test_main():
     """Test the main function integration with actual subprocess calls."""
     # Create a temporary directory structure for testing
@@ -48,18 +49,22 @@ sys.path.insert(0, '../src')
 from example import add, subtract, multiply, divide
 import pytest
 
+@pytest.mark.integration
 def test_add():
     assert add(2, 3) == 5
     assert add(-1, 1) == 0
 
+@pytest.mark.integration
 def test_subtract():
     assert subtract(5, 3) == 2
     assert subtract(0, 5) == -5
 
+@pytest.mark.integration
 def test_multiply():
     assert multiply(3, 4) == 12
     assert multiply(0, 5) == 0
 
+@pytest.mark.integration
 def test_divide():
     assert divide(10, 2) == 5
     assert divide(7, 2) == 3.5
@@ -116,6 +121,7 @@ dependencies = ["pytest", "pytest-cov"]
         # Create a test file that will fail
         failing_test = test_dir / "test_failing.py"
         failing_test.write_text("""
+@pytest.mark.integration
 def test_will_fail():
     assert False, "This test is designed to fail"
 """)

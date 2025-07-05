@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import benchmark
 
 
+@pytest.mark.e2e
 def test_benchmark_implementation():
     """E2E test for the benchmark_implementation function."""
     # Arrange
@@ -83,14 +84,17 @@ def divide(a, b):
 import pytest
 from src.calculator import add, multiply, divide
 
+@pytest.mark.e2e
 def test_add():
     assert add(2, 3) == 5
     assert add(-1, 1) == 0
 
+@pytest.mark.e2e
 def test_multiply():
     assert multiply(3, 4) == 12
     assert multiply(0, 5) == 0
 
+@pytest.mark.e2e
 def test_divide():
     assert divide(10, 2) == 5
     with pytest.raises(ValueError):
@@ -100,13 +104,16 @@ def test_divide():
             # Test file with empty tests
             empty_test = project_path / "test" / "unit" / "test_empty.py"
             empty_test.write_text("""
+@pytest.mark.e2e
 def test_todo():
     # TODO: implement this test
     pass
 
+@pytest.mark.e2e
 def test_not_implemented():
     pass
 
+@pytest.mark.e2e
 def test_another_empty():
     '''This test needs implementation'''
     pass
@@ -117,14 +124,17 @@ def test_another_empty():
             missing_hooks.write_text("""
 import pytest
 
+@pytest.mark.e2e
 def test_with_stop():
     proboscis.stop()
     assert True
 
+@pytest.mark.e2e
 def test_without_hook():
     # Missing stop() call
     assert True
 
+@pytest.mark.e2e
 def test_multiple_stops():
     proboscis.stop()
     proboscis.stop()  # Multiple stops
@@ -146,6 +156,7 @@ PROB002 = { enabled = true }
             
             yield project_path
 
+    @pytest.mark.e2e
     def test_benchmark_implementation_e2e_basic(self, sample_project):
         """Test running benchmark script end-to-end on a sample project."""
         # Get the benchmark script path
@@ -177,6 +188,7 @@ PROB002 = { enabled = true }
         violation_count = int(match.group(1))
         assert violation_count > 0  # Should find some violations
 
+    @pytest.mark.e2e
     def test_benchmark_implementation_e2e_no_rust(self, sample_project, monkeypatch):
         """Test benchmark behavior when Rust implementation is not available."""
         # Get the benchmark script path
@@ -209,6 +221,7 @@ PROB002 = { enabled = true }
 class TestMain:
     """E2E tests for the main function through subprocess execution."""
 
+    @pytest.mark.e2e
     def test_main_e2e_help_message(self):
         """Test benchmark script shows usage when called without arguments."""
         benchmark_script = Path(__file__).parent.parent.parent / "benchmark.py"
@@ -225,6 +238,7 @@ class TestMain:
         # Should show usage message
         assert "Usage: python benchmark.py <project_path>" in result.stdout
 
+    @pytest.mark.e2e
     def test_main_e2e_invalid_path(self):
         """Test benchmark script handles invalid project path."""
         benchmark_script = Path(__file__).parent.parent.parent / "benchmark.py"
@@ -242,6 +256,7 @@ class TestMain:
         # Should show error message
         assert f"Error: {invalid_path} does not exist" in result.stdout
 
+    @pytest.mark.e2e
     def test_main_e2e_real_project_structure(self):
         """Test benchmarking on a realistic project structure."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -265,36 +280,44 @@ class TestMain:
             # Create multiple test files
             test_files = [
                 ("tests/unit/test_models.py", """
+@pytest.mark.e2e
 def test_user_model():
     assert True
 
+@pytest.mark.e2e
 def test_product_model():
     pass  # Empty test
 """),
                 ("tests/unit/test_views.py", """
 import pytest
 
+@pytest.mark.e2e
 def test_home_view():
     response = mock_response()
     assert response.status_code == 200
 
+@pytest.mark.e2e
 def test_login_view():
     # TODO: implement
     pass
 """),
                 ("tests/integration/test_api.py", """
+@pytest.mark.e2e
 def test_api_endpoint():
     proboscis.stop()
     assert api_call() == expected
 
+@pytest.mark.e2e
 def test_api_error_handling():
     # Missing stop hook
     assert True
 """),
                 ("tests/e2e/test_user_flow.py", """
+@pytest.mark.e2e
 def test_user_registration():
     assert register_user("test@example.com")
 
+@pytest.mark.e2e
 def test_user_login():
     assert login("test@example.com", "password")
 """)
@@ -331,6 +354,7 @@ test_patterns = ["test_*.py", "*_test.py"]
             assert "Time:" in output
             assert "seconds" in output
 
+    @pytest.mark.e2e
     def test_main_e2e_performance_comparison(self):
         """Test that performance comparison shows meaningful results."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -383,6 +407,7 @@ def test_case_{i}_3():
                 assert "Performance Comparison:" in output
                 assert "faster than Python" in output or "slower than Python" in output
 
+    @pytest.mark.e2e
     def test_main_e2e_consistent_results(self):
         """Test that multiple runs produce consistent violation counts."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -394,12 +419,15 @@ def test_case_{i}_3():
             
             test_file = test_dir / "test_consistency.py"
             test_file.write_text("""
+@pytest.mark.e2e
 def test_empty_1():
     pass
 
+@pytest.mark.e2e
 def test_empty_2():
     pass
 
+@pytest.mark.e2e
 def test_with_hook():
     proboscis.stop()
     assert True

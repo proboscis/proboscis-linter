@@ -13,6 +13,7 @@ import debug_files
 class TestMain:
     """Test cases for main function."""
 
+    @pytest.mark.unit
     @patch('debug_files.RustLinterWrapper')
     @patch('debug_files.ProboscisLinter')
     @patch('debug_files.ProboscisConfig')
@@ -58,6 +59,7 @@ class TestMain:
         assert any("Total: 3 files" in call for call in print_calls)
         assert any("Running Rust implementation" in call for call in print_calls)
 
+    @pytest.mark.unit
     @patch('debug_files.RustLinterWrapper')
     @patch('debug_files.ProboscisLinter')
     @patch('debug_files.ProboscisConfig')
@@ -96,6 +98,7 @@ class TestMain:
         assert any("Files only processed by Python (1):" in call for call in print_calls)
         assert any("extra_file.py" in call for call in print_calls)
 
+    @pytest.mark.unit
     @patch('debug_files.RustLinterWrapper')
     @patch('debug_files.ProboscisLinter')
     @patch('debug_files.ProboscisConfig')
@@ -124,6 +127,7 @@ class TestMain:
         assert any("Rust found violations in 0 files" in call for call in print_calls)
         assert any("Files only processed by Python (2):" in call for call in print_calls)
 
+    @pytest.mark.unit
     @patch('debug_files.RustLinterWrapper')
     @patch('debug_files.ProboscisLinter')
     @patch('debug_files.ProboscisConfig')
@@ -157,6 +161,7 @@ class TestMain:
         # Should only count unique files
         assert any("Rust found violations in 1 files" in call for call in print_calls)
 
+    @pytest.mark.unit
     @patch('debug_files.RustLinterWrapper')
     @patch('debug_files.ProboscisLinter')
     @patch('debug_files.ProboscisConfig')

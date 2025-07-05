@@ -8,6 +8,7 @@ from io import StringIO
 sys.path.insert(0, '/Users/s22625/repos/proboscis-linter')
 
 
+@pytest.mark.unit
 def test_main_successful_run():
     """Test successful test run with coverage above 90%."""
     mock_result = MagicMock()
@@ -34,6 +35,7 @@ TOTAL                        50      2    95%
     assert '95%' in output['reason']
 
 
+@pytest.mark.unit
 def test_main_test_failures():
     """Test failures with coverage still high."""
     mock_result = MagicMock()
@@ -62,6 +64,7 @@ TOTAL                        50      2    95%
     assert output['continue'] is True
 
 
+@pytest.mark.unit
 def test_main_low_coverage():
     """Test coverage below 90%."""
     mock_result = MagicMock()
@@ -87,6 +90,7 @@ TOTAL                        50     10    80%
     assert 'Coverage is 80%' in output['reason']
 
 
+@pytest.mark.unit
 def test_main_both_failures_and_low_coverage():
     """Test both failures and low coverage."""
     mock_result = MagicMock()
@@ -119,6 +123,7 @@ TOTAL                        50     20    60%
     assert 'ERROR tests/test_example.py::test_three' in output['reason']
 
 
+@pytest.mark.unit
 def test_main_no_coverage_match():
     """Test no coverage match (default to 0%)."""
     mock_result = MagicMock()
@@ -137,6 +142,7 @@ def test_main_no_coverage_match():
     assert 'Coverage is 0%' in output['reason']
 
 
+@pytest.mark.unit
 def test_main_stop_hook_active():
     """Test that stop_hook_active prevents execution."""
     import proboscis_stop_hook
@@ -146,6 +152,7 @@ def test_main_stop_hook_active():
             mock_exit.assert_called_once_with(0)
 
 
+@pytest.mark.unit
 def test_main_invalid_json():
     """Test handling of invalid JSON input."""
     mock_result = MagicMock()
@@ -167,6 +174,7 @@ TOTAL                        50      2    95%
     assert output['decision'] == 'approve'
 
 
+@pytest.mark.unit
 def test_main_no_failures_in_stdout():
     """Test when returncode indicates failure but no FAILED lines in output."""
     mock_result = MagicMock()
@@ -194,6 +202,7 @@ TOTAL                        50      2    95%
     assert output['reason'] == 'Tests failed:\n'
 
 
+@pytest.mark.unit
 def test_main():
     """Run all test cases for backward compatibility."""
     test_main_successful_run()

@@ -14,6 +14,7 @@ import debug_files
 class TestMain:
     """Integration test cases for main function."""
 
+    @pytest.mark.integration
     def test_main_with_real_config_and_linter(self):
         """Test main function with real ProboscisConfig and ProboscisLinter."""
         # Create a temporary directory with Python files
@@ -46,6 +47,7 @@ class TestMain:
             finally:
                 os.chdir(original_cwd)
 
+    @pytest.mark.integration
     def test_main_with_gitignore_patterns(self):
         """Test main function respects gitignore patterns."""
         # Create a temporary directory with gitignore
@@ -84,6 +86,7 @@ class TestMain:
             finally:
                 os.chdir(original_cwd)
 
+    @pytest.mark.integration
     def test_main_rust_import_error_handling(self):
         """Test main function handles Rust import errors gracefully."""
         # Create a temporary directory
@@ -107,6 +110,7 @@ class TestMain:
             finally:
                 os.chdir(original_cwd)
 
+    @pytest.mark.integration
     def test_main_empty_project(self):
         """Test main function with empty project (no Python files)."""
         # Create a temporary directory with no Python files
@@ -133,6 +137,7 @@ class TestMain:
             finally:
                 os.chdir(original_cwd)
 
+    @pytest.mark.integration
     def test_main_nested_directory_structure(self):
         """Test main function with deeply nested directory structure."""
         # Create a temporary directory with nested structure

@@ -5,6 +5,7 @@ import tempfile
 from pathlib import Path
 
 
+@pytest.mark.e2e
 def test_main():
     """Test the main function end-to-end with subprocess execution."""
     # Test missing argument
@@ -113,6 +114,7 @@ benchmark_small.main()
         assert "files/second" in output
 
 
+@pytest.mark.e2e
 def test_main_script_execution():
     """Test running the script as a module."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -134,6 +136,7 @@ def test_main_script_execution():
             assert "No module named" in result.stderr or "Rust implementation not available" in result.stdout
 
 
+@pytest.mark.e2e
 def test_main_with_config_file():
     """Test e2e with configuration file."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -160,6 +163,7 @@ if __name__ == "__main__":
         
         (test_path / "tests").mkdir()
         (test_path / "tests" / "test_main.py").write_text("""
+@pytest.mark.e2e
 def test_main():
     \"\"\"Test main function.\"\"\"
     pass
@@ -203,6 +207,7 @@ benchmark_small.main()
         assert "Violations found: 1" in output
 
 
+@pytest.mark.e2e
 def test_main_performance_output():
     """Test that performance metrics are calculated correctly."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -264,6 +269,7 @@ benchmark_small.main()
             assert 7000 < speed < 8500  # Allow some variance
 
 
+@pytest.mark.e2e
 def test_main_error_handling():
     """Test error handling in e2e context."""
     # Test with a path that exists but causes an error during linting

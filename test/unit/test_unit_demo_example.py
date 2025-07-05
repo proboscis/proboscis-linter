@@ -13,6 +13,7 @@ from demo_example import untested_function, MyClass
 class TestUntestedFunction:
     """Unit tests for untested_function."""
     
+    @pytest.mark.unit
     def test_untested_function(self):
         """Test that untested_function returns expected value."""
         # Act
@@ -26,6 +27,7 @@ class TestUntestedFunction:
 class TestMyClass:
     """Unit tests for MyClass."""
     
+    @pytest.mark.unit
     def test_MyClass_public_method(self):
         """Test that public_method returns double the value."""
         # Arrange
@@ -38,6 +40,7 @@ class TestMyClass:
         # Assert
         assert result == 10
     
+    @pytest.mark.unit
     def test_MyClass_public_method_with_zero(self):
         """Test public_method with zero value."""
         # Arrange
@@ -50,6 +53,7 @@ class TestMyClass:
         # Assert
         assert result == 0
     
+    @pytest.mark.unit
     def test_MyClass_public_method_with_negative(self):
         """Test public_method with negative value."""
         # Arrange
@@ -62,6 +66,7 @@ class TestMyClass:
         # Assert
         assert result == -6
     
+    @pytest.mark.unit
     def test_MyClass_initialization(self):
         """Test that MyClass initializes with value 0."""
         # Act

@@ -13,6 +13,7 @@ from demo_example import untested_function, exempt_function, MyClass
 class TestUntestedFunctionIntegration:
     """Integration tests for untested_function."""
     
+    @pytest.mark.integration
     def test_untested_function(self):
         """Test untested_function in integration context."""
         # Act
@@ -27,6 +28,7 @@ class TestUntestedFunctionIntegration:
 class TestExemptFunctionIntegration:
     """Integration tests for exempt_function."""
     
+    @pytest.mark.integration
     def test_exempt_function(self):
         """Test exempt_function returns expected value."""
         # Act
@@ -41,6 +43,7 @@ class TestExemptFunctionIntegration:
 class TestMyClassIntegration:
     """Integration tests for MyClass."""
     
+    @pytest.mark.integration
     def test_MyClass_public_method(self):
         """Test MyClass public_method in integration context."""
         # Arrange
@@ -57,6 +60,7 @@ class TestMyClassIntegration:
         # Assert
         assert result == 20
     
+    @pytest.mark.integration
     def test_MyClass_multiple_instances(self):
         """Test multiple MyClass instances work independently."""
         # Arrange
@@ -76,6 +80,7 @@ class TestMyClassIntegration:
         assert result2 == 6
         assert instance1.value != instance2.value
     
+    @pytest.mark.integration
     def test_MyClass_state_persistence(self):
         """Test that MyClass maintains state correctly."""
         # Arrange

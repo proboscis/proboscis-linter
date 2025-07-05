@@ -13,6 +13,7 @@ from demo_example import untested_function, exempt_function, MyClass
 class TestDemoExampleE2E:
     """End-to-end tests for demo_example module."""
     
+    @pytest.mark.e2e
     def test_untested_function(self):
         """E2E test for untested_function."""
         # Act - simulate real usage
@@ -22,6 +23,7 @@ class TestDemoExampleE2E:
         assert result == "untested"
         assert isinstance(result, str)
     
+    @pytest.mark.e2e
     def test_exempt_function(self):
         """E2E test for exempt_function."""
         # Act - simulate real usage
@@ -31,6 +33,7 @@ class TestDemoExampleE2E:
         assert result == "exempt"
         assert isinstance(result, str)
     
+    @pytest.mark.e2e
     def test_MyClass_public_method(self):
         """E2E test for MyClass public_method."""
         # Simulate real-world usage scenario
@@ -45,6 +48,7 @@ class TestDemoExampleE2E:
         result = my_instance.public_method()
         assert result == 84
     
+    @pytest.mark.e2e
     def test_complete_workflow(self):
         """Test a complete workflow using multiple components."""
         # Create instance
@@ -67,6 +71,7 @@ class TestDemoExampleE2E:
         assert calc_result1 == 20
         assert calc_result2 == 50
     
+    @pytest.mark.e2e
     def test_MyClass_lifecycle(self):
         """Test complete lifecycle of MyClass usage."""
         # Create and use instance

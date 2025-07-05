@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 import benchmark
 
 
+@pytest.mark.integration
 def test_benchmark_implementation():
     """Integration test for the benchmark_implementation function."""
     # Arrange
@@ -63,10 +64,12 @@ class TestBenchmarkImplementation:
             test_file.write_text("""
 import pytest
 
+@pytest.mark.integration
 def test_missing_implementation():
     '''Test with no implementation.'''
     pass
 
+@pytest.mark.integration
 def test_another_missing():
     pass
 """)
@@ -74,15 +77,18 @@ def test_another_missing():
             # Create another test file
             test_file2 = test_dir / "test_another.py"
             test_file2.write_text("""
+@pytest.mark.integration
 def test_valid():
     assert True
 
+@pytest.mark.integration
 def test_also_valid():
     assert 1 + 1 == 2
 """)
             
             yield project_path
 
+    @pytest.mark.integration
     def test_benchmark_implementation_with_real_config(self, temp_project):
         """Test benchmarking with real configuration object."""
         # Arrange
@@ -126,6 +132,7 @@ def test_also_valid():
         assert any("Integration Test Implementation:" in call for call in output_calls)
         assert any("Violations found: 2" in call for call in output_calls)
 
+    @pytest.mark.integration
     def test_benchmark_implementation_performance_measurement(self, temp_project):
         """Test that performance is measured accurately for different execution times."""
         # Arrange
@@ -192,15 +199,18 @@ enabled = true
             # Create test files
             test_file = test_dir / "test_sample.py"
             test_file.write_text("""
+@pytest.mark.integration
 def test_empty():
     pass
 
+@pytest.mark.integration
 def test_with_implementation():
     assert True
 """)
             
             yield project_path
 
+    @pytest.mark.integration
     @patch('benchmark.RustLinterWrapper')
     def test_main_integration_with_config_loading(self, mock_rust_wrapper, temp_project_with_config):
         """Test main function with configuration loading from project."""
@@ -229,6 +239,7 @@ def test_with_implementation():
                 assert any("Rust Implementation:" in call for call in output)
                 assert any("Performance Comparison:" in call for call in output)
 
+    @pytest.mark.integration
     @patch('benchmark.ProboscisLinter')
     @patch('benchmark.RustLinterWrapper')
     def test_main_integration_with_different_implementations(self, mock_rust_wrapper, 
@@ -279,6 +290,7 @@ def test_with_implementation():
                 # Rust should be at least 2x faster given our timing
                 assert speedup >= 2.0
 
+    @pytest.mark.integration
     @patch('benchmark.RustLinterWrapper')
     def test_main_integration_error_handling(self, mock_rust_wrapper, temp_project_with_config):
         """Test main function handles errors during benchmarking gracefully."""
@@ -302,6 +314,7 @@ def test_with_implementation():
                 assert any("Rust implementation not available" in call for call in output)
                 assert any("maturin" in call for call in output)
 
+    @pytest.mark.integration
     def test_main_integration_with_empty_project(self):
         """Test benchmarking an empty project."""
         with tempfile.TemporaryDirectory() as tmpdir:

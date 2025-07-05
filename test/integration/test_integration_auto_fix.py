@@ -9,6 +9,7 @@ from proboscis_linter.cli import cli
 class TestAutoFixIntegration:
     """Integration tests for auto-fix feature."""
     
+    @pytest.mark.integration
     def test_fix_missing_pytest_markers(self, tmp_path):
         """Test fixing missing pytest markers with --fix flag."""
         # Create test directory structure
@@ -18,9 +19,11 @@ class TestAutoFixIntegration:
         # Create a test file without markers
         test_file = test_dir / "test_example.py"
         test_file.write_text(dedent('''
+            @pytest.mark.integration
             def test_simple():
                 assert True
             
+            @pytest.mark.integration
             def test_another():
                 assert 1 + 1 == 2
         ''').strip())
@@ -36,16 +39,19 @@ class TestAutoFixIntegration:
         
         # Check the file content was updated
         expected = dedent('''
+            @pytest.mark.integration
             @pytest.mark.unit
             def test_simple():
                 assert True
             
+            @pytest.mark.integration
             @pytest.mark.unit
             def test_another():
                 assert 1 + 1 == 2
         ''').strip()
         assert test_file.read_text() == expected
     
+    @pytest.mark.integration
     def test_fix_with_existing_decorators(self, tmp_path):
         """Test fixing when test already has other decorators."""
         # Create test directory structure
@@ -61,6 +67,7 @@ class TestAutoFixIntegration:
             def setup():
                 return "data"
             
+            @pytest.mark.integration
             @pytest.mark.parametrize("value", [1, 2, 3])
             def test_parametrized(value):
                 assert value > 0
@@ -79,6 +86,7 @@ class TestAutoFixIntegration:
         assert "@pytest.mark.integration" in content
         assert content.count("@pytest.mark.parametrize") == 1
     
+    @pytest.mark.integration
     def test_fix_only_fixes_enabled_rules(self, tmp_path):
         """Test that --fix only fixes violations for enabled rules."""
         # Create test directory structure
@@ -96,6 +104,7 @@ class TestAutoFixIntegration:
         # Create a test file without markers
         test_file = test_dir / "test_example.py"
         original_content = dedent('''
+            @pytest.mark.integration
             def test_simple():
                 assert True
         ''').strip()
@@ -112,6 +121,7 @@ class TestAutoFixIntegration:
         # Check the file content is unchanged
         assert test_file.read_text() == original_content
     
+    @pytest.mark.integration
     def test_fix_with_verbose_output(self, tmp_path):
         """Test --fix with verbose output."""
         # Create test directory structure
@@ -121,6 +131,7 @@ class TestAutoFixIntegration:
         # Create a test file without markers
         test_file = test_dir / "test_example.py"
         test_file.write_text(dedent('''
+            @pytest.mark.integration
             def test_e2e_scenario():
                 pass
         ''').strip())
@@ -139,6 +150,7 @@ class TestAutoFixIntegration:
         content = test_file.read_text()
         assert "@pytest.mark.e2e" in content
     
+    @pytest.mark.integration
     def test_fix_preserves_indentation(self, tmp_path):
         """Test that --fix preserves proper indentation."""
         # Create test directory structure
@@ -149,9 +161,11 @@ class TestAutoFixIntegration:
         test_file = test_dir / "test_class.py"
         test_file.write_text(dedent('''
             class TestMath:
+                @pytest.mark.integration
                 def test_addition(self):
                     assert 1 + 1 == 2
                 
+                @pytest.mark.integration
                 def test_subtraction(self):
                     assert 5 - 3 == 2
         ''').strip())
@@ -166,10 +180,12 @@ class TestAutoFixIntegration:
         # Check indentation is preserved
         expected = dedent('''
             class TestMath:
+                @pytest.mark.integration
                 @pytest.mark.unit
                 def test_addition(self):
                     assert 1 + 1 == 2
                 
+                @pytest.mark.integration
                 @pytest.mark.unit
                 def test_subtraction(self):
                     assert 5 - 3 == 2
