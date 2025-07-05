@@ -55,7 +55,7 @@ def untested_function():
     result = runner.invoke(cli, [str(tmp_path), "--format", "json"])
     
     assert result.exit_code == 0
-    assert '"total_violations": 1' in result.output
+    assert '"total_violations": 3' in result.output  # Now we have PL001, PL002, and PL003
     assert '"function": "untested_function"' in result.output
 
 

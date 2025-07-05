@@ -59,15 +59,25 @@ pub fn find_python_files(root: &Path, exclude_patterns: &[String]) -> Vec<PathBu
                 return false;
             }
             
-            // Skip test directories and hidden/virtual environment directories
+            // Skip __pycache__ and virtual environment directories
             if path.components().any(|c| {
                 c.as_os_str().to_str().map(|s| 
-                    s == "test" || s == "tests" || s == "__pycache__" || 
+                    s == "__pycache__" || 
                     s == ".venv" || s == "venv" || s == "env" || s == ".env" ||
                     (s.starts_with('.') && s != "." && s != "..")
                 ).unwrap_or(false)
             }) {
                 return false;
+            }
+            
+            // Only skip test files if they are in test/tests directories at the root
+            let relative_path = path.strip_prefix(root).unwrap_or(path);
+            if let Some(first_component) = relative_path.components().next() {
+                if let Some(s) = first_component.as_os_str().to_str() {
+                    if s == "test" || s == "tests" {
+                        return false;
+                    }
+                }
             }
             
             // Check exclude patterns

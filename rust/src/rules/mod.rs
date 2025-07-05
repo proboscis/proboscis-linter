@@ -1,4 +1,6 @@
 pub mod pl001_require_test;
+pub mod pl002_require_integration_test;
+pub mod pl003_require_e2e_test;
 
 use crate::models::LintViolation;
 use std::path::Path;
@@ -10,6 +12,8 @@ use std::sync::Arc;
 pub struct RuleContext<'a> {
     pub test_directories: &'a [String],
     pub test_cache: &'a Arc<TestCache>,
+    pub module_path: &'a str,
+    pub project_root: &'a Path,
 }
 
 /// Trait that all linting rules must implement
@@ -36,6 +40,8 @@ pub trait LintRule {
 /// Get all available rules
 pub fn get_all_rules() -> Vec<Box<dyn LintRule + Send + Sync>> {
     vec![
-        Box::new(pl001_require_test::PL001RequireTest::new()),
+        Box::new(pl001_require_test::PL001RequireUnitTest::new()),
+        Box::new(pl002_require_integration_test::PL002RequireIntegrationTest::new()),
+        Box::new(pl003_require_e2e_test::PL003RequireE2ETest::new()),
     ]
 }

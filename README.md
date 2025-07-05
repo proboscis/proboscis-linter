@@ -1,6 +1,6 @@
 # Proboscis Linter
 
-A high-performance Python linter that enforces test coverage for functions. Built with Rust for speed and Python for ease of use.
+A high-performance Python linter that enforces test coverage for functions and class methods. Built with Rust for speed and Python for ease of use. Supports hierarchical test organization and enforces test structure that mirrors your source code organization.
 
 ## Features
 
@@ -8,6 +8,9 @@ A high-performance Python linter that enforces test coverage for functions. Buil
 - **Configurable**: Control rules via `pyproject.toml`
 - **Extensible**: Easy to add new rules with the PL### naming convention
 - **Smart**: Respects `# noqa` comments and understands test patterns
+- **Class-Aware**: Distinguishes between class methods and standalone functions
+- **Hierarchical Tests**: Supports unit, integration, and e2e test organization
+- **Structure Enforcement**: Tests must mirror source code package structure
 
 ## Installation
 
@@ -54,22 +57,93 @@ output_format = "text"
 fail_on_error = false
 
 [tool.proboscis.rules]
-PL001 = true  # require-test rule
+PL001 = true  # require-unit-test
+PL002 = true  # require-integration-test
+PL003 = true  # require-e2e-test
 ```
 
 ## Rules
 
-### PL001: require-test
+### PL001: require-unit-test
 
-Ensures all public functions have corresponding tests.
+Ensures all public functions and methods have corresponding unit tests.
 
 **Skip with**: `# noqa: PL001`
 
-**Skipped by default**:
+**Test Location**: Tests must be in `test/unit/` directory with matching structure
+
+**Test Naming**:
+- Functions: `test_function_name` or `test_unit_function_name`
+- Class methods: `test_ClassName_method_name` or `test_classname_method_name`
+
+### PL002: require-integration-test
+
+Ensures functions have integration tests when enabled.
+
+**Skip with**: `# noqa: PL002`
+
+**Test Location**: Tests must be in `test/integration/` directory
+
+### PL003: require-e2e-test
+
+Ensures functions have end-to-end tests when enabled.
+
+**Skip with**: `# noqa: PL003`
+
+**Test Location**: Tests must be in `test/e2e/` directory
+
+**Skipped by default for all rules**:
 - Private functions (starting with `_`)
 - `__init__` methods
 - Protocol methods
 - Functions in test files
+
+## Test Organization
+
+### Package Structure Mirroring
+
+Tests must be organized to mirror your source code structure. All tests for a module should be in a single test file:
+
+```
+# Source file:
+src/pkg/mod1/submod.py
+
+# Expected test files:
+test/unit/pkg/mod1/test_submod.py       # All unit tests for submod.py
+test/integration/pkg/mod1/test_submod.py # All integration tests for submod.py  
+test/e2e/pkg/mod1/test_submod.py        # All e2e tests for submod.py
+```
+
+### Test Naming Convention
+
+All functions and methods from a source module should have their tests in the corresponding test file:
+
+```python
+# Source code in src/pkg/mod1/submod.py
+def standalone_function():
+    return 42
+
+class Calculator:
+    def add(self, a, b):
+        return a + b
+    
+    def multiply(self, a, b):
+        return a * b
+
+# Test code in test/unit/pkg/mod1/test_submod.py
+def test_standalone_function():
+    assert standalone_function() == 42
+
+def test_Calculator_add():
+    calc = Calculator()
+    assert calc.add(2, 3) == 5
+
+def test_Calculator_multiply():
+    calc = Calculator()
+    assert calc.multiply(3, 4) == 12
+```
+
+For class methods, the test function name includes the class name: `test_ClassName_method`
 
 ## Performance
 

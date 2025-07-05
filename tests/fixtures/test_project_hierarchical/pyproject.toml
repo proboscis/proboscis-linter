@@ -1,0 +1,7 @@
+[tool.proboscis]
+test_directories = ["test"]
+
+[tool.proboscis.rules]
+PL001 = true  # require-unit-test
+PL002 = true  # require-integration-test  
+PL003 = true  # require-e2e-test
