@@ -211,7 +211,7 @@ fn create_violation(file_path: &Path, func: &TestFunction, expected_marker: &str
         line_number: func.line_number,
         function_name: func.name.clone(),
         message: format!(
-            "[PL004] Test function '{}' is missing required pytest marker.\nExpected: @pytest.mark.{}\nLocation: {}",
+            "[PL004] Test function '{}' is missing required pytest marker.\nExpected: @pytest.mark.{}\nLocation: {}\n\nTip: Use --fix flag to automatically add missing markers",
             func.name,
             expected_marker,
             file_path.display()
