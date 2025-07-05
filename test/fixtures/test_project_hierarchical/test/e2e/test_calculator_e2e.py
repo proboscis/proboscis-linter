@@ -1,5 +1,6 @@
 """End-to-end tests for calculator module."""
 
+@pytest.mark.e2e
 def test_e2e_calculate_total():
     """Test calculate_total method end-to-end."""
     from src.calculator import Calculator

@@ -1,11 +1,13 @@
 """Unit tests for pkg.mod1.submod module."""
 
+@pytest.mark.unit
 def test_standalone_function():
     """Test the standalone function."""
     from src.pkg.mod1.submod import standalone_function
     assert standalone_function() == 42
 
 
+@pytest.mark.unit
 def test_Calculator_add():
     """Test Calculator.add method using proper naming convention."""
     from src.pkg.mod1.submod import Calculator
@@ -13,6 +15,7 @@ def test_Calculator_add():
     assert calc.add(2, 3) == 5
 
 
+@pytest.mark.unit
 def test_Calculator_multiply():
     """Test Calculator.multiply method."""
     from src.pkg.mod1.submod import Calculator
@@ -23,6 +26,7 @@ def test_Calculator_multiply():
 # Note: Calculator.update has no test - should trigger PL001
 
 
+@pytest.mark.unit
 def test_DataProcessor_process():
     """Test DataProcessor.process method."""
     from src.pkg.mod1.submod import DataProcessor

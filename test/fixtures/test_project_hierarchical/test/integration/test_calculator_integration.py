@@ -1,5 +1,6 @@
 """Integration tests for calculator module."""
 
+@pytest.mark.integration
 def test_integration_divide():
     """Test divide function with various inputs."""
     from src.calculator import divide
