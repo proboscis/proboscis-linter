@@ -63,17 +63,42 @@ impl LintRule for PL001RequireTest {
         );
         
         if !test_found {
+            // Generate expected test patterns
+            let mut expected_patterns = vec![
+                format!("test_{}", function_name),
+                format!("test_e2e_{}", function_name),
+            ];
+            
+            if let Some(class) = class_name {
+                expected_patterns.push(format!("test_{}_{}", class.to_lowercase(), function_name));
+                expected_patterns.push(format!("test_{}_{}", class, function_name));
+            }
+            
+            // Get module name from file path
+            let module_name = file_path.file_stem()
+                .and_then(|s| s.to_str())
+                .unwrap_or("module");
+            
+            // Build expected locations string
+            let test_dirs = context.test_directories.join(" or ");
+            let expected_files = if module_name != "module" {
+                format!("test_{}.py or test files containing '{}'", module_name, module_name)
+            } else {
+                "test files".to_string()
+            };
+            
             Some(LintViolation {
                 rule_name: format!("{}:{}", self.rule_id(), self.rule_name()),
                 file_path: file_path.to_string_lossy().to_string(),
                 line_number,
                 function_name: function_name.to_string(),
                 message: format!(
-                    "[{}] Function '{}' at {}:{} has no test found",
+                    "[{}] Function '{}' has no test found. Expected one of: {} in {}/{} directories",
                     self.rule_id(),
                     function_name,
-                    file_path.display(),
-                    line_number
+                    expected_patterns.join(", "),
+                    test_dirs,
+                    expected_files
                 ),
                 severity: "error".to_string(),
             })
