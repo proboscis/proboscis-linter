@@ -103,6 +103,9 @@ impl LintRule for PL002RequireIntegrationTest {
                 function_name: function_name.to_string(),
                 message,
                 severity: "error".to_string(),
+                fix_type: None,
+                fix_content: None,
+                fix_line: None,
             })
         } else {
             None

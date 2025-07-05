@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Optional
 from pydantic import BaseModel
 
 
@@ -10,3 +10,6 @@ class LintViolation(BaseModel):
     function_name: str
     message: str
     severity: Literal['error', 'warning']
+    fix_type: Optional[str] = None
+    fix_content: Optional[str] = None
+    fix_line: Optional[int] = None

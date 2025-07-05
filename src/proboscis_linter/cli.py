@@ -6,6 +6,7 @@ from loguru import logger
 from .linter import ProboscisLinter
 from .report_generator import TextReportGenerator, JsonReportGenerator
 from .config import ProboscisConfig, ConfigLoader
+from .auto_fix import AutoFixer
 
 # Version info
 __version__ = "0.1.0"
@@ -132,13 +133,18 @@ For more information, visit: https://github.com/proboscis/proboscis-linter
     is_flag=True,
     help="Only check files that have been modified in git (includes staged, unstaged, and untracked Python files). Requires the project to be in a git repository."
 )
+@click.option(
+    "--fix",
+    is_flag=True,
+    help="Automatically fix violations when possible. Currently supports adding missing pytest markers for PL004."
+)
 @click.version_option(
     __version__,
     "--version", "-V",
     message="%(prog)s version %(version)s",
     help="Show the version and exit."
 )
-def cli(path: Path, format: str, fail_on_error: bool, exclude: tuple, verbose: bool, changed_only: bool):
+def cli(path: Path, format: str, fail_on_error: bool, exclude: tuple, verbose: bool, changed_only: bool, fix: bool):
     """
     Proboscis Linter - A fast, Rust-powered linter that ensures all Python functions have corresponding tests.
     
@@ -180,6 +186,24 @@ def cli(path: Path, format: str, fail_on_error: bool, exclude: tuple, verbose: b
     else:
         logger.info(f"Linting {path}...")
         violations = linter.lint_project(path)
+    
+    # Apply fixes if requested
+    if fix and violations:
+        logger.info("Applying automatic fixes...")
+        fixer = AutoFixer()
+        fixes_applied = fixer.apply_fixes(violations)
+        
+        # Re-lint to get updated violations after fixes
+        if fixes_applied:
+            logger.info("Re-linting after applying fixes...")
+            if changed_only:
+                violations = linter.lint_changed_files(path)
+            else:
+                violations = linter.lint_project(path)
+            
+            # Log summary of fixes
+            for file_path, count in fixes_applied.items():
+                logger.info(f"Fixed {count} violation(s) in {file_path}")
     
     # Generate report
     if config.output_format == "json":

@@ -15,4 +15,10 @@ pub struct LintViolation {
     pub message: String,
     #[pyo3(get)]
     pub severity: String,
+    #[pyo3(get)]
+    pub fix_type: Option<String>,
+    #[pyo3(get)]
+    pub fix_content: Option<String>,
+    #[pyo3(get)]
+    pub fix_line: Option<usize>,
 }

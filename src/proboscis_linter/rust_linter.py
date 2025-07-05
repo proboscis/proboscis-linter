@@ -56,7 +56,10 @@ class RustLinterWrapper:
                     line_number=rv.line_number,
                     function_name=rv.function_name,
                     message=rv.message,
-                    severity=rv.severity
+                    severity=rv.severity,
+                    fix_type=rv.fix_type,
+                    fix_content=rv.fix_content,
+                    fix_line=rv.fix_line
                 )
                 violations.append(violation)
             
@@ -113,7 +116,10 @@ class RustLinterWrapper:
                     line_number=rv.line_number,
                     function_name=rv.function_name,
                     message=rv.message,
-                    severity=rv.severity
+                    severity=rv.severity,
+                    fix_type=rv.fix_type,
+                    fix_content=rv.fix_content,
+                    fix_line=rv.fix_line
                 )
                 violations.append(violation)
             

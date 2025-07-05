@@ -50,7 +50,38 @@ proboscis-linter . --changed-only
 
 # Show comprehensive help
 proboscis-linter --help
+
+# Automatically fix violations (currently supports PL004)
+proboscis-linter . --fix
 ```
+
+### Auto-fix Support
+
+The linter can automatically fix certain violations with the `--fix` flag:
+
+#### Currently Supported Auto-fixes
+
+- **PL004**: Automatically adds missing pytest markers (@pytest.mark.unit/integration/e2e) to test functions
+
+```bash
+# Example: Auto-fix missing pytest markers
+proboscis-linter test/ --fix
+
+# Before fix:
+def test_my_function():
+    assert True
+
+# After fix:
+@pytest.mark.unit
+def test_my_function():
+    assert True
+```
+
+The auto-fix feature:
+- Preserves existing decorators and indentation
+- Adds markers above any existing decorators
+- Handles class methods with proper indentation
+- Re-runs the linter after applying fixes to ensure violations are resolved
 
 ### Configuration
 
@@ -69,6 +100,7 @@ strict_mode = false  # When true, checks private functions too
 PL001 = true  # require-unit-test
 PL002 = true  # require-integration-test
 PL003 = true  # require-e2e-test
+PL004 = true  # require-test-markers
 ```
 
 ## Rules
@@ -100,6 +132,19 @@ Ensures functions have end-to-end tests when enabled.
 **Skip with**: `#noqa PL003` or `#noqa: PL003`
 
 **Test Location**: Tests must be in `test/e2e/` directory
+
+### PL004: require-test-markers
+
+Ensures test functions have appropriate pytest markers based on their location.
+
+**Skip with**: `#noqa PL004` or `#noqa: PL004`
+
+**Required Markers**:
+- Tests in `test/unit/` must have `@pytest.mark.unit`
+- Tests in `test/integration/` must have `@pytest.mark.integration`
+- Tests in `test/e2e/` must have `@pytest.mark.e2e`
+
+**Auto-fix**: This rule supports automatic fixing with the `--fix` flag
 
 **Skipped by default for all rules**:
 - Private functions (starting with `_`) - unless `strict_mode = true`

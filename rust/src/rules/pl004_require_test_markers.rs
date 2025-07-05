@@ -202,6 +202,9 @@ fn has_pytest_marker(func: &TestFunction, expected_marker: &str) -> bool {
 
 /// Create a violation for a missing pytest marker
 fn create_violation(file_path: &Path, func: &TestFunction, expected_marker: &str) -> LintViolation {
+    // The fix is to add the decorator on the line before the function
+    let fix_line = if func.line_number > 1 { func.line_number - 1 } else { 1 };
+    
     LintViolation {
         rule_name: "PL004:require-test-markers".to_string(),
         file_path: file_path.to_str().unwrap_or("").to_string(),
@@ -214,6 +217,9 @@ fn create_violation(file_path: &Path, func: &TestFunction, expected_marker: &str
             file_path.display()
         ),
         severity: "error".to_string(),
+        fix_type: Some("add_decorator".to_string()),
+        fix_content: Some(format!("@pytest.mark.{}", expected_marker)),
+        fix_line: Some(fix_line),
     }
 }
 
