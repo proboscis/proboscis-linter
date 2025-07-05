@@ -40,7 +40,12 @@ logger.add(
     is_flag=True,
     help="Enable verbose logging"
 )
-def cli(path: Path, format: str, fail_on_error: bool, exclude: tuple, verbose: bool):
+@click.option(
+    "--changed-only",
+    is_flag=True,
+    help="Only check files with git changes (staged, unstaged, or untracked)"
+)
+def cli(path: Path, format: str, fail_on_error: bool, exclude: tuple, verbose: bool, changed_only: bool):
     """Proboscis Linter - Enforce that all Python functions have tests."""
     
     if verbose:
@@ -66,8 +71,12 @@ def cli(path: Path, format: str, fail_on_error: bool, exclude: tuple, verbose: b
     linter = ProboscisLinter(config)
     
     # Lint the project
-    logger.info(f"Linting {path}...")
-    violations = linter.lint_project(path)
+    if changed_only:
+        logger.info(f"Linting changed files in {path}...")
+        violations = linter.lint_changed_files(path)
+    else:
+        logger.info(f"Linting {path}...")
+        violations = linter.lint_project(path)
     
     # Generate report
     if config.output_format == "json":

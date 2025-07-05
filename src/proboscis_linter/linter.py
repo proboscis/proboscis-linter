@@ -21,3 +21,7 @@ class ProboscisLinter:
     def lint_file(self, file_path: Path, test_directories: List[Path]) -> List[LintViolation]:
         """Lint a single file."""
         return self._rust_linter.lint_file(file_path, test_directories)
+    
+    def lint_changed_files(self, project_root: Path) -> List[LintViolation]:
+        """Lint only files with git changes (staged, unstaged, or untracked)."""
+        return self._rust_linter.lint_changed_files(project_root)

@@ -78,3 +78,32 @@ class RustLinterWrapper:
             violations.append(violation)
         
         return violations
+    
+    def lint_changed_files(self, project_root: Path) -> List[LintViolation]:
+        """Lint only files with git changes using the Rust implementation."""
+        with logger.contextualize(project_root=str(project_root)):
+            logger.info(f"Linting changed files with Rust implementation: {project_root}")
+            
+            # Call Rust implementation
+            rust_violations = self._rust_linter.lint_changed_files(str(project_root))
+            
+            # Convert Rust violations to Python models
+            violations = []
+            for rv in rust_violations:
+                # Filter by enabled rules
+                rule_id = rv.rule_name.split(':')[0]
+                if not self._config.is_rule_enabled(rule_id):
+                    continue
+                
+                violation = LintViolation(
+                    rule_name=rv.rule_name,
+                    file_path=Path(rv.file_path),
+                    line_number=rv.line_number,
+                    function_name=rv.function_name,
+                    message=rv.message,
+                    severity=rv.severity
+                )
+                violations.append(violation)
+            
+            logger.info(f"Found {len(violations)} violations in changed files")
+            return violations

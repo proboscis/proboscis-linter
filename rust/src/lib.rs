@@ -1,5 +1,7 @@
 mod file_discovery;
+mod git;
 mod models;
+mod noqa;
 mod rules;
 mod test_cache;
 mod test_discovery;
@@ -13,7 +15,7 @@ use std::path::Path;
 use crate::file_discovery::find_python_files;
 use crate::models::LintViolation;
 use crate::rules::get_all_rules;
-use crate::test_cache::TestCache;
+use crate::test_cache::{TestCache, TestType};
 
 #[pyclass]
 #[derive(Clone)]
@@ -58,7 +60,7 @@ impl RustLinter {
         // Process files in parallel with shared test cache
         let violations: Vec<LintViolation> = python_files
             .par_iter()
-            .filter_map(|file| self.lint_file_internal_with_cache(file, &rules, &test_cache).ok())
+            .filter_map(|file| self.lint_file_internal_with_cache(file, &rules, &test_cache, project_path).ok())
             .flatten()
             .collect();
         
@@ -70,18 +72,92 @@ impl RustLinter {
         let rules = get_all_rules();
         self.lint_file_internal(path, &rules)
     }
+    
+    fn lint_changed_files(&self, project_root: &str) -> PyResult<Vec<LintViolation>> {
+        let project_path = Path::new(project_root);
+        
+        // Check if we're in a git repository
+        if !git::is_git_repository(project_path) {
+            return Err(pyo3::exceptions::PyRuntimeError::new_err(
+                "Not in a git repository"
+            ));
+        }
+        
+        // Get changed files
+        let changed_files = git::get_changed_files(project_path);
+        
+        if changed_files.is_empty() {
+            return Ok(Vec::new());
+        }
+        
+        // Build test cache once for the entire project
+        let test_cache = TestCache::build_from_directories(project_path, &self.test_directories);
+        
+        // Get all rules
+        let rules = get_all_rules();
+        
+        // Process changed files in parallel with shared test cache
+        let violations: Vec<LintViolation> = changed_files
+            .par_iter()
+            .filter_map(|file| self.lint_file_internal_with_cache(file, &rules, &test_cache, project_path).ok())
+            .flatten()
+            .collect();
+        
+        Ok(violations)
+    }
 }
 
 impl RustLinter {
+    /// Extract module path from file path (e.g., src/pkg/mod1/submod.py -> pkg.mod1.submod)
+    fn get_module_path(file_path: &Path, project_root: &Path) -> String {
+        // Get relative path from project root
+        let relative_path = file_path.strip_prefix(project_root).unwrap_or(file_path);
+        
+        // Remove src/ prefix if present
+        let module_path = if let Ok(stripped) = relative_path.strip_prefix("src") {
+            stripped
+        } else {
+            relative_path
+        };
+        
+        // Convert path to module notation
+        let mut components = Vec::new();
+        for component in module_path.components() {
+            if let Some(s) = component.as_os_str().to_str() {
+                // Remove .py extension from the last component
+                let part = if s.ends_with(".py") {
+                    &s[..s.len() - 3]
+                } else {
+                    s
+                };
+                // Skip __init__ files
+                if part != "__init__" && !part.is_empty() {
+                    components.push(part);
+                }
+            }
+        }
+        
+        components.join(".")
+    }
+    
     fn lint_file_internal(
         &self,
         path: &Path,
         rules: &[Box<dyn rules::LintRule + Send + Sync>],
     ) -> PyResult<Vec<LintViolation>> {
-        // For single file linting, build a small cache
-        let project_root = path.parent().unwrap_or(Path::new("."));
+        // For single file linting, find project root by looking for pyproject.toml or setup.py
+        let mut project_root = path.parent().unwrap_or(Path::new("."));
+        let mut current = project_root;
+        while current != current.parent().unwrap_or(current) {
+            if current.join("pyproject.toml").exists() || current.join("setup.py").exists() {
+                project_root = current;
+                break;
+            }
+            current = current.parent().unwrap_or(current);
+        }
+        
         let test_cache = TestCache::build_from_directories(project_root, &self.test_directories);
-        self.lint_file_internal_with_cache(path, rules, &test_cache)
+        self.lint_file_internal_with_cache(path, rules, &test_cache, project_root)
     }
     
     fn lint_file_internal_with_cache(
@@ -89,9 +165,13 @@ impl RustLinter {
         path: &Path,
         rules: &[Box<dyn rules::LintRule + Send + Sync>],
         test_cache: &std::sync::Arc<TestCache>,
+        project_root: &Path,
     ) -> PyResult<Vec<LintViolation>> {
         let content = fs::read_to_string(path)?;
         let lines: Vec<&str> = content.lines().collect();
+        
+        // Get module path for this file
+        let module_path = Self::get_module_path(path, project_root);
         
         let mut violations = Vec::new();
         let mut current_class = None;
@@ -100,7 +180,8 @@ impl RustLinter {
         for (line_num, line) in lines.iter().enumerate() {
             // Check for class definitions
             if let Some(captures) = self.class_regex.captures(line) {
-                current_class = Some(captures.get(2).unwrap().as_str().to_string());
+                let class_name = captures.get(2).unwrap().as_str();
+                current_class = Some(class_name.to_string());
                 in_protocol = line.contains("Protocol");
                 continue;
             }
@@ -114,17 +195,23 @@ impl RustLinter {
                 let context = rules::RuleContext {
                     test_directories: &self.test_directories,
                     test_cache,
+                    module_path: &module_path,
+                    project_root,
                 };
                 
                 // Check against all rules
                 for rule in rules {
+                    // If we have a current class and the function is indented, it's a method
+                    let is_method = current_class.is_some() && !indent.is_empty();
+                    let is_protocol_method = in_protocol && is_method;
+                    
                     if let Some(violation) = rule.check_function(
                         function_name,
                         path,
                         line_num + 1,
                         line,
-                        current_class.as_deref(),
-                        in_protocol && !indent.is_empty(),
+                        if is_method { current_class.as_deref() } else { None },
+                        is_protocol_method,
                         &context,
                     ) {
                         violations.push(violation);
@@ -132,10 +219,14 @@ impl RustLinter {
                 }
             }
             
-            // Reset class context on dedent
-            if current_class.is_some() && line.chars().all(|c| c.is_whitespace()) {
-                current_class = None;
-                in_protocol = false;
+            // Reset class context on dedent (non-blank line with no indentation)
+            // But skip if it's a class or function definition
+            if current_class.is_some() && !line.trim().is_empty() && !line.starts_with(' ') && !line.starts_with('\t') {
+                // Don't reset if this line is defining a new class or function at module level
+                if !self.class_regex.is_match(line) && !self.function_regex.is_match(line) {
+                    current_class = None;
+                    in_protocol = false;
+                }
             }
         }
         
