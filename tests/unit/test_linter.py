@@ -13,7 +13,7 @@ def test_linter_no_violations(tmp_path):
 def tested_function():
     pass
 
-def exempt_function():  # noqa: PL001
+def exempt_function():  # noqa PL001
     pass
 """)
     
@@ -29,7 +29,14 @@ def test_tested_function():
     linter = ProboscisLinter()
     violations = linter.lint_project(tmp_path)
     
-    assert len(violations) == 0
+    # Since the test is in "tests" (not "test/unit"), it's treated as a general test
+    # So tested_function has its test found by all rules (general tests match all patterns)
+    # Only exempt_function will have violations for PL002 and PL003
+    assert len(violations) == 2  # exempt_function: PL002, PL003
+    
+    # Check that all violations are for PL002 or PL003
+    for v in violations:
+        assert v.rule_name.startswith("PL002") or v.rule_name.startswith("PL003")
 
 
 def test_linter_with_violations(tmp_path):
@@ -52,9 +59,12 @@ def another_untested():
     linter = ProboscisLinter()
     violations = linter.lint_project(tmp_path)
     
-    assert len(violations) == 2
-    assert violations[0].function_name == "untested_function"
-    assert violations[1].function_name == "another_untested"
+    # Each function will have 3 violations (PL001, PL002, PL003)
+    assert len(violations) == 6
+    
+    # Check that we have violations for both functions
+    function_names = {v.function_name for v in violations}
+    assert function_names == {"untested_function", "another_untested"}
 
 
 def test_linter_exclude_patterns(tmp_path):
@@ -78,9 +88,9 @@ def generated_function():
     linter = ProboscisLinter(config)
     violations = linter.lint_project(tmp_path)
     
-    # Should only find violation in module.py
-    assert len(violations) == 1
-    assert violations[0].file_path.name == "module.py"
+    # Should only find violations in module.py (3 violations: PL001, PL002, PL003)
+    assert len(violations) == 3
+    assert all(v.file_path.name == "module.py" for v in violations)
 
 
 def test_linter_lint_file(tmp_path):
@@ -94,5 +104,6 @@ def untested_function():
     linter = ProboscisLinter()
     violations = linter.lint_file(test_file, [])
     
-    assert len(violations) == 1
-    assert violations[0].function_name == "untested_function"
+    # Will find 3 violations (PL001, PL002, PL003)
+    assert len(violations) == 3
+    assert all(v.function_name == "untested_function" for v in violations)

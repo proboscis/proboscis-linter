@@ -50,7 +50,9 @@ exclude_patterns = [
 # Rule configuration
 [tool.proboscis.rules]
 # Enable/disable specific rules
-PL001 = true  # require-test rule
+PL001 = true  # require-unit-test rule
+PL002 = true  # require-integration-test rule  
+PL003 = true  # require-e2e-test rule
 
 # Or use detailed configuration
 # [tool.proboscis.rules.PL001]
@@ -60,3 +62,8 @@ PL001 = true  # require-test rule
 # Output configuration
 output_format = "text"  # or "json"
 fail_on_error = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Exclude fixture files from test discovery
+addopts = "--ignore=tests/fixtures/"
