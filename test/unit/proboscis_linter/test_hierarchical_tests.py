@@ -1,7 +1,7 @@
 """Test hierarchical test discovery (unit/integration/e2e)."""
 import pytest
 from pathlib import Path
-from proboscis_linter.linter import ProboscisLinter
+from proboscis_linter.rust_linter import RustLinterWrapper
 from proboscis_linter.config import ProboscisConfig, RuleConfig
 
 
@@ -18,9 +18,9 @@ class TestHierarchicalTests:
                 "PL003": RuleConfig(enabled=False)
             }
         )
-        linter = ProboscisLinter(config)
+        linter = RustLinterWrapper(config)
         
-        test_project = Path(__file__).parent.parent / "fixtures" / "test_project_hierarchical"
+        test_project = Path(__file__).parent.parent.parent / "fixtures" / "test_project_hierarchical"
         violations = linter.lint_project(test_project)
         
         # Filter for PL001 violations
@@ -44,9 +44,9 @@ class TestHierarchicalTests:
                 "PL003": RuleConfig(enabled=False)
             }
         )
-        linter = ProboscisLinter(config)
+        linter = RustLinterWrapper(config)
         
-        test_project = Path(__file__).parent.parent / "fixtures" / "test_project_hierarchical"
+        test_project = Path(__file__).parent.parent.parent / "fixtures" / "test_project_hierarchical"
         violations = linter.lint_project(test_project)
         
         # Filter for PL002 violations
@@ -71,9 +71,9 @@ class TestHierarchicalTests:
                 "PL003": RuleConfig(enabled=True)
             }
         )
-        linter = ProboscisLinter(config)
+        linter = RustLinterWrapper(config)
         
-        test_project = Path(__file__).parent.parent / "fixtures" / "test_project_hierarchical"
+        test_project = Path(__file__).parent.parent.parent / "fixtures" / "test_project_hierarchical"
         violations = linter.lint_project(test_project)
         
         # Filter for PL003 violations
@@ -98,9 +98,9 @@ class TestHierarchicalTests:
                 "PL003": RuleConfig(enabled=True)
             }
         )
-        linter = ProboscisLinter(config)
+        linter = RustLinterWrapper(config)
         
-        test_project = Path(__file__).parent.parent / "fixtures" / "test_project_hierarchical"
+        test_project = Path(__file__).parent.parent.parent / "fixtures" / "test_project_hierarchical"
         violations = linter.lint_project(test_project)
         
         # Count violations by rule
@@ -127,9 +127,9 @@ class TestHierarchicalTests:
                 "PL003": RuleConfig(enabled=True)
             }
         )
-        linter = ProboscisLinter(config)
+        linter = RustLinterWrapper(config)
         
-        test_project = Path(__file__).parent.parent / "fixtures" / "test_project_hierarchical"
+        test_project = Path(__file__).parent.parent.parent / "fixtures" / "test_project_hierarchical"
         violations = linter.lint_project(test_project)
         
         # Check that each rule mentions the correct directory
