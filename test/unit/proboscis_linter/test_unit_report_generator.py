@@ -303,4 +303,3 @@ def test_JsonReportGenerator_get_format_name():
     from proboscis_linter.report_generator import JsonReportGenerator
     generator = JsonReportGenerator()
     assert generator.get_format_name() == "json"
-EOF < /dev/null
