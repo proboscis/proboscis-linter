@@ -4,6 +4,7 @@ from pathlib import Path
 from proboscis_linter.config import ProboscisConfig, ConfigLoader, RuleConfig
 
 
+@pytest.mark.e2e
 def test_ProboscisConfig_validate_output_format():
     """E2E test for ProboscisConfig.validate_output_format method."""
     # Test valid formats
@@ -16,6 +17,7 @@ def test_ProboscisConfig_validate_output_format():
         ProboscisConfig.validate_output_format("invalid")
 
 
+@pytest.mark.e2e
 def test_ProboscisConfig_validate_non_empty_list():
     """E2E test for ProboscisConfig.validate_non_empty_list method."""
     # Test with valid data
@@ -28,6 +30,7 @@ def test_ProboscisConfig_validate_non_empty_list():
         ProboscisConfig.validate_non_empty_list([])
 
 
+@pytest.mark.e2e
 def test_ProboscisConfig_is_rule_enabled():
     """E2E test for ProboscisConfig.is_rule_enabled method."""
     # Test with various rule configurations
@@ -51,6 +54,7 @@ def test_ProboscisConfig_is_rule_enabled():
     assert config.is_rule_enabled("CUSTOM_RULE") is True
 
 
+@pytest.mark.e2e
 def test_ProboscisConfig_get_rule_options():
     """E2E test for ProboscisConfig.get_rule_options method."""
     # Create config with various rule options
@@ -82,6 +86,7 @@ def test_ProboscisConfig_get_rule_options():
     assert config.get_rule_options("UNKNOWN") == {}
 
 
+@pytest.mark.e2e
 def test_ConfigLoader_load_from_file():
     """E2E test for ConfigLoader.load_from_file method."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -121,6 +126,7 @@ PL003 = { enabled = true, options = { severity = "warning" } }
         assert missing_config == ProboscisConfig()  # Should return default
 
 
+@pytest.mark.e2e
 def test_ConfigLoader_find_config_file():
     """E2E test for ConfigLoader.find_config_file method."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -158,6 +164,7 @@ def test_ConfigLoader_find_config_file():
         assert ConfigLoader.find_config_file(sub2) == root_config
 
 
+@pytest.mark.e2e
 def test_ConfigLoader_merge_cli_options():
     """E2E test for ConfigLoader.merge_cli_options method."""
     # Create base config with specific settings
@@ -202,6 +209,7 @@ def test_ConfigLoader_merge_cli_options():
 class TestConfigE2E:
     """End-to-end tests for configuration in real-world scenarios."""
     
+    @pytest.mark.e2e
     def test_multi_project_workspace(self):
         """Test configuration in a multi-project workspace."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -297,6 +305,7 @@ PL003 = true
             assert config_c.is_rule_enabled("PL002") is True
             assert config_c.is_rule_enabled("PL003") is True
     
+    @pytest.mark.e2e
     def test_real_world_config_scenarios(self):
         """Test configuration handling in real-world scenarios."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -379,6 +388,7 @@ options = {min_coverage = 90}
             assert config.fail_on_error is True
             assert config.get_rule_options("PL001") == {"min_coverage": 90}
     
+    @pytest.mark.e2e
     def test_config_with_build_tools_integration(self):
         """Test configuration alongside other build tools."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -461,6 +471,7 @@ warn_unused_configs = true
             assert config.is_rule_enabled("PL003") is False
             assert config.get_rule_options("PL003") == {"reason": "E2E tests are in separate repo"}
     
+    @pytest.mark.e2e
     def test_config_migration_scenarios(self):
         """Test configuration migration and compatibility scenarios."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -542,6 +553,7 @@ options = {
                 "skip_utilities": True
             }
     
+    @pytest.mark.e2e
     def test_config_error_handling_e2e(self):
         """Test configuration error handling in end-to-end scenarios."""
         with tempfile.TemporaryDirectory() as tmpdir:

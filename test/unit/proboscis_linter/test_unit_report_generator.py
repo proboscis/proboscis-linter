@@ -5,6 +5,7 @@ from proboscis_linter.models import LintViolation
 from proboscis_linter.report_generator import TextReportGenerator, JsonReportGenerator
 
 
+@pytest.mark.unit
 def test_text_report_generator_empty():
     generator = TextReportGenerator()
     report = generator.generate_report([])
@@ -13,6 +14,7 @@ def test_text_report_generator_empty():
     assert "✓" in report
 
 
+@pytest.mark.unit
 def test_text_report_generator_with_violations():
     violations = [
         LintViolation(
@@ -44,6 +46,7 @@ def test_text_report_generator_with_violations():
     assert "ERROR" in report
 
 
+@pytest.mark.unit
 def test_json_report_generator():
     violations = [
         LintViolation(
@@ -67,6 +70,7 @@ def test_json_report_generator():
     assert data["violations"][0]["severity"] == "error"
 
 
+@pytest.mark.unit
 def test_report_generator_names():
     text_gen = TextReportGenerator()
     json_gen = JsonReportGenerator()
@@ -75,6 +79,7 @@ def test_report_generator_names():
     assert json_gen.get_format_name() == "json"
 
 
+@pytest.mark.unit
 def test_text_report_with_mixed_severities():
     """Test text report with different severity levels."""
     violations = [
@@ -106,6 +111,7 @@ def test_text_report_with_mixed_severities():
     assert "Total violations: 2" in report
 
 
+@pytest.mark.unit
 def test_text_report_tip_section():
     """Test that text report includes helpful tips."""
     violations = [
@@ -130,6 +136,7 @@ def test_text_report_tip_section():
     assert "def another_function():  #noqa PL001, PL002" in report
 
 
+@pytest.mark.unit
 def test_json_report_empty():
     """Test JSON report with no violations."""
     generator = JsonReportGenerator()
@@ -141,6 +148,7 @@ def test_json_report_empty():
     assert isinstance(data["violations"], list)
 
 
+@pytest.mark.unit
 def test_json_report_multiple_violations():
     """Test JSON report with multiple violations."""
     violations = [
@@ -196,6 +204,7 @@ def test_json_report_multiple_violations():
         assert "severity" in violation
 
 
+@pytest.mark.unit
 def test_json_report_formatting():
     """Test JSON report is properly formatted."""
     violations = [
@@ -221,6 +230,7 @@ def test_json_report_formatting():
     assert '{\n  "total_violations"' in report
 
 
+@pytest.mark.unit
 def test_report_generator_with_special_characters():
     """Test report generation with special characters in paths and names."""
     violations = [
@@ -247,6 +257,7 @@ def test_report_generator_with_special_characters():
     assert "special chars & symbols" in data["violations"][0]["file"]
     assert data["violations"][0]["function"] == "func_with_unicode_αβγ"
 # Direct test functions expected by the linter
+@pytest.mark.unit
 def test_TextReportGenerator_generate_report():
     """Test TextReportGenerator.generate_report method."""
     from proboscis_linter.models import LintViolation
@@ -268,6 +279,7 @@ def test_TextReportGenerator_generate_report():
     assert "test_func" in report
 
 
+@pytest.mark.unit
 def test_TextReportGenerator_get_format_name():
     """Test TextReportGenerator.get_format_name method."""
     from proboscis_linter.report_generator import TextReportGenerator
@@ -275,6 +287,7 @@ def test_TextReportGenerator_get_format_name():
     assert generator.get_format_name() == "text"
 
 
+@pytest.mark.unit
 def test_JsonReportGenerator_generate_report():
     """Test JsonReportGenerator.generate_report method."""
     from proboscis_linter.models import LintViolation
@@ -298,6 +311,7 @@ def test_JsonReportGenerator_generate_report():
     assert len(data["violations"]) == 1
 
 
+@pytest.mark.unit
 def test_JsonReportGenerator_get_format_name():
     """Test JsonReportGenerator.get_format_name method."""
     from proboscis_linter.report_generator import JsonReportGenerator

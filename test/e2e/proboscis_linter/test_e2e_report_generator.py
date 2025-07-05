@@ -9,6 +9,7 @@ from proboscis_linter.models import LintViolation
 from proboscis_linter.report_generator import TextReportGenerator, JsonReportGenerator
 
 
+@pytest.mark.e2e
 def test_TextReportGenerator_generate_report():
     """E2E test for TextReportGenerator.generate_report method."""
     generator = TextReportGenerator()
@@ -43,6 +44,7 @@ def test_TextReportGenerator_generate_report():
     assert "PL002" in report
 
 
+@pytest.mark.e2e
 def test_TextReportGenerator_get_format_name():
     """E2E test for TextReportGenerator.get_format_name method."""
     generator = TextReportGenerator()
@@ -51,6 +53,7 @@ def test_TextReportGenerator_get_format_name():
     assert isinstance(name, str)
 
 
+@pytest.mark.e2e
 def test_JsonReportGenerator_generate_report():
     """E2E test for JsonReportGenerator.generate_report method."""
     generator = JsonReportGenerator()
@@ -81,6 +84,7 @@ def test_JsonReportGenerator_generate_report():
     assert violation["line_number"] == 100
 
 
+@pytest.mark.e2e
 def test_JsonReportGenerator_get_format_name():
     """E2E test for JsonReportGenerator.get_format_name method."""
     generator = JsonReportGenerator()
@@ -200,17 +204,21 @@ def validate_email(email):
             test_dir.mkdir(parents=True)
             
             (test_dir / "test_auth.py").write_text("""
+@pytest.mark.e2e
 def test_login():
     pass
 
+@pytest.mark.e2e
 def test_verify_token():
     pass
 """)
             
             (test_dir / "test_utils.py").write_text("""
+@pytest.mark.e2e
 def test_validate_email():
     pass
 
+@pytest.mark.e2e
 def test_format_date():
     pass
 """)
@@ -229,6 +237,7 @@ PL003 = false  # Disable e2e requirement
             
             yield root
     
+    @pytest.mark.e2e
     def test_text_report_real_project(self, real_project):
         """Test text report generation with a real project."""
         runner = CliRunner()
@@ -264,6 +273,7 @@ PL003 = false  # Disable e2e requirement
         assert "Tip:" in result.output
         assert "#noqa" in result.output
     
+    @pytest.mark.e2e
     def test_json_report_real_project(self, real_project):
         """Test JSON report generation with a real project."""
         runner = CliRunner()
@@ -313,6 +323,7 @@ PL003 = false  # Disable e2e requirement
         # Should have many different functions
         assert len(functions) >= 10
     
+    @pytest.mark.e2e
     def test_report_format_switching(self, real_project):
         """Test switching between report formats."""
         runner = CliRunner()
@@ -340,6 +351,7 @@ PL003 = false  # Disable e2e requirement
         for func in json_functions:
             assert func in text_result.output
     
+    @pytest.mark.e2e
     def test_large_report_performance(self):
         """Test report generation performance with many violations."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -389,6 +401,7 @@ class Class_{i}_{j}:
             json_data = json.loads(json_result.output)
             assert json_data["total_violations"] > 3000  # Many violations
     
+    @pytest.mark.e2e
     def test_report_with_config_variations(self, real_project):
         """Test report generation with different configurations."""
         runner = CliRunner()
@@ -425,6 +438,7 @@ PL003 = true  # Now enabled
         assert "PL002" in rules2
         assert "PL003" in rules2
     
+    @pytest.mark.e2e
     def test_report_cli_integration(self, real_project):
         """Test report generation through full CLI workflow."""
         runner = CliRunner()
@@ -466,6 +480,7 @@ PL003 = true  # Now enabled
         assert "violations" in result.output
         assert "Total violations:" in result.output
     
+    @pytest.mark.e2e
     def test_report_special_cases(self):
         """Test report generation with special cases."""
         with tempfile.TemporaryDirectory() as tmpdir:

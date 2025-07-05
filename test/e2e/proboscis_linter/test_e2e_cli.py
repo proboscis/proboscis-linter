@@ -7,6 +7,7 @@ from click.testing import CliRunner
 from proboscis_linter.cli import cli
 
 
+@pytest.mark.e2e
 def test_my_function():
     """E2E test for my_function (example in help text)."""
     # This is a placeholder test for the example function in the help text
@@ -14,6 +15,7 @@ def test_my_function():
     assert True
 
 
+@pytest.mark.e2e
 def test_another_function():
     """E2E test for another_function (example in help text)."""
     # This is a placeholder test for the example function in the help text
@@ -21,6 +23,7 @@ def test_another_function():
     assert True
 
 
+@pytest.mark.e2e
 def test_cli():
     """E2E test for the cli function."""
     runner = CliRunner()
@@ -131,9 +134,11 @@ def migrate():
             unit.mkdir()
             
             (unit / "test_models.py").write_text("""
+@pytest.mark.e2e
 def test_user_save():
     pass
 
+@pytest.mark.e2e
 def test_create_user():
     pass
 """)
@@ -233,9 +238,11 @@ def validate_user_data(data):
             unit = tests / "unit"
             unit.mkdir()
             (unit / "test_auth.py").write_text("""
+@pytest.mark.e2e
 def test_verify_token():
     pass
 
+@pytest.mark.e2e
 def test_create_token():
     pass
 """)
@@ -244,6 +251,7 @@ def test_create_token():
             integration = tests / "integration"
             integration.mkdir()
             (integration / "test_api.py").write_text("""
+@pytest.mark.e2e
 def test_read_root():
     pass
 """)
@@ -252,6 +260,7 @@ def test_read_root():
             e2e = tests / "e2e"
             e2e.mkdir()
             (e2e / "test_full_flow.py").write_text("""
+@pytest.mark.e2e
 def test_create_item():
     pass
 """)
@@ -271,6 +280,7 @@ PL003 = true
             
             yield root
     
+    @pytest.mark.e2e
     def test_django_project_e2e(self, django_project):
         """Test linting a Django project end-to-end."""
         runner = CliRunner()
@@ -296,6 +306,7 @@ PL003 = true
         # Should exclude manage.py
         assert "manage.py" not in result.output
     
+    @pytest.mark.e2e
     def test_fastapi_project_e2e(self, fastapi_project):
         """Test linting a FastAPI project end-to-end."""
         runner = CliRunner()
@@ -331,6 +342,7 @@ PL003 = true
         assert "UserService.update_user" in function_names or "update_user" in function_names
         assert "validate_user_data" in function_names
     
+    @pytest.mark.e2e
     def test_monorepo_e2e(self):
         """Test linting a monorepo with multiple services."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -408,6 +420,7 @@ def validate_data(data):
             assert "PL002" not in result2.output
             assert "PL003" not in result2.output
     
+    @pytest.mark.e2e
     def test_real_world_workflow_e2e(self):
         """Test a complete real-world workflow."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -449,9 +462,11 @@ def divide(a, b):
             unit.mkdir()
             
             (unit / "test_calculator.py").write_text("""
+@pytest.mark.e2e
 def test_add():
     pass
 
+@pytest.mark.e2e
 def test_subtract():
     pass
 """)
@@ -498,6 +513,7 @@ PL003 = false  # Disable e2e test requirement
             assert "ERROR:" in result.output
             assert '"violations"' not in result.output
     
+    @pytest.mark.e2e
     def test_performance_e2e(self):
         """Test performance with a large codebase."""
         with tempfile.TemporaryDirectory() as tmpdir:

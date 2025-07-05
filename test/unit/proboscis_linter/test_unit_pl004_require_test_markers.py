@@ -6,6 +6,7 @@ from proboscis_linter.rust_linter import RustLinterWrapper
 from proboscis_linter.config import ProboscisConfig
 
 
+@pytest.mark.unit
 def test_pl004_unit_test_missing_marker():
     """Test PL004 detects missing pytest.mark.unit marker in unit test."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -17,6 +18,7 @@ def test_pl004_unit_test_missing_marker():
         test_file = test_dir / "test_example.py"
         
         test_file.write_text("""
+@pytest.mark.unit
 def test_missing_marker():
     assert True
 
@@ -38,6 +40,7 @@ def test_has_marker():
         assert "@pytest.mark.unit" in pl004_violations[0].message
 
 
+@pytest.mark.unit
 def test_pl004_integration_test_missing_marker():
     """Test PL004 detects missing pytest.mark.integration marker in integration test."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -53,6 +56,7 @@ def test_pl004_integration_test_missing_marker():
 def test_wrong_marker():
     assert True
 
+@pytest.mark.unit
 @pytest.mark.integration
 def test_correct_marker():
     assert True
@@ -71,6 +75,7 @@ def test_correct_marker():
         assert "@pytest.mark.integration" in pl004_violations[0].message
 
 
+@pytest.mark.unit
 def test_pl004_e2e_test_missing_marker():
     """Test PL004 detects missing pytest.mark.e2e marker in e2e test."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -82,13 +87,16 @@ def test_pl004_e2e_test_missing_marker():
         test_file = test_dir / "test_example.py"
         
         test_file.write_text("""
+@pytest.mark.unit
 def test_no_marker():
     pass
 
+@pytest.mark.unit
 @mark.e2e  # Short form should work
 def test_short_marker():
     pass
 
+@pytest.mark.unit
 @pytest.mark.e2e
 def test_full_marker():
     pass
@@ -107,6 +115,7 @@ def test_full_marker():
         assert "@pytest.mark.e2e" in pl004_violations[0].message
 
 
+@pytest.mark.unit
 def test_pl004_non_test_directory():
     """Test PL004 ignores test files not in standard test directories."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -118,6 +127,7 @@ def test_pl004_non_test_directory():
         test_file = src_dir / "test_example.py"
         
         test_file.write_text("""
+@pytest.mark.unit
 def test_no_marker():
     assert True
 """)
@@ -134,6 +144,7 @@ def test_no_marker():
         assert len(pl004_violations) == 0
 
 
+@pytest.mark.unit
 def test_pl004_disabled():
     """Test PL004 can be disabled via config."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -145,6 +156,7 @@ def test_pl004_disabled():
         test_file = test_dir / "test_example.py"
         
         test_file.write_text("""
+@pytest.mark.unit
 def test_no_marker():
     assert True
 """)
@@ -160,6 +172,7 @@ def test_no_marker():
         assert len(pl004_violations) == 0
 
 
+@pytest.mark.unit
 def test_pl004_noqa_file_level():
     """Test PL004 respects file-level noqa comments."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -172,6 +185,7 @@ def test_pl004_noqa_file_level():
         
         test_file.write_text("""
 # noqa: PL004
+@pytest.mark.unit
 def test_no_marker():
     assert True
 """)
@@ -187,6 +201,7 @@ def test_no_marker():
         assert len(pl004_violations) == 0
 
 
+@pytest.mark.unit
 def test_pl004_noqa_line_level():
     """Test PL004 respects line-level noqa comments."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -201,6 +216,7 @@ def test_pl004_noqa_line_level():
 def test_no_marker():  # noqa: PL004
     assert True
 
+@pytest.mark.unit
 def test_another_no_marker():
     assert True
 """)
@@ -217,6 +233,7 @@ def test_another_no_marker():
         assert pl004_violations[0].function_name == "test_another_no_marker"
 
 
+@pytest.mark.unit
 def test_pl004_multiple_decorators():
     """Test PL004 works with multiple decorators."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -233,6 +250,7 @@ def test_pl004_multiple_decorators():
 def test_with_multiple_decorators():
     assert True
 
+@pytest.mark.unit
 @pytest.mark.parametrize("x", [1, 2, 3])
 def test_missing_unit_marker(x):
     assert x > 0

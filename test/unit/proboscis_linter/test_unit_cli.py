@@ -5,6 +5,7 @@ from proboscis_linter.cli import cli
 
 
 # Direct test function expected by the linter
+@pytest.mark.unit
 def test_cli():
     """Test cli function."""
     runner = CliRunner()
@@ -13,6 +14,7 @@ def test_cli():
     assert "proboscis-lint" in result.output
 
 
+@pytest.mark.unit
 def test_cli_no_violations(tmp_path):
     # Create source with test
     src_file = tmp_path / "module.py"
@@ -25,6 +27,7 @@ def tested_function():
     test_dir.mkdir()
     test_file = test_dir / "test_module.py"
     test_file.write_text("""
+@pytest.mark.unit
 def test_tested_function():
     pass
 """)
@@ -36,6 +39,7 @@ def test_tested_function():
     assert "No violations found" in result.output
 
 
+@pytest.mark.unit
 def test_cli_with_violations(tmp_path):
     # Create source without test
     src_file = tmp_path / "module.py"
@@ -52,6 +56,7 @@ def untested_function():
     assert "ERROR" in result.output
 
 
+@pytest.mark.unit
 def test_cli_json_format(tmp_path):
     # Create source without test
     src_file = tmp_path / "module.py"
@@ -68,6 +73,7 @@ def untested_function():
     assert '"function": "untested_function"' in result.output
 
 
+@pytest.mark.unit
 def test_cli_help():
     runner = CliRunner()
     result = runner.invoke(cli, ["--help"])
@@ -78,6 +84,7 @@ def test_cli_help():
     assert "--fail-on-error" in result.output
 
 
+@pytest.mark.unit
 def test_cli_version():
     """Test --version option."""
     runner = CliRunner()
@@ -87,6 +94,7 @@ def test_cli_version():
     assert "version" in result.output
 
 
+@pytest.mark.unit
 def test_cli_verbose_mode(tmp_path):
     """Test verbose logging mode."""
     src_file = tmp_path / "module.py"
@@ -103,6 +111,7 @@ def untested_function():
     assert "DEBUG" in result.output or "Linting" in result.output
 
 
+@pytest.mark.unit
 def test_cli_exclude_patterns(tmp_path):
     """Test excluding files with --exclude option."""
     # Create files that should be excluded
@@ -130,6 +139,7 @@ def normal_function():
     assert "generated_function" not in result.output
 
 
+@pytest.mark.unit
 def test_cli_multiple_exclude_patterns(tmp_path):
     """Test multiple exclude patterns."""
     src_dir = tmp_path / "src"
@@ -137,6 +147,7 @@ def test_cli_multiple_exclude_patterns(tmp_path):
     
     test_file = src_dir / "test_utils.py"
     test_file.write_text("""
+@pytest.mark.unit
 def test_helper():
     pass
 """)
@@ -166,6 +177,7 @@ def normal_function():
     assert "temp_function" not in result.output
 
 
+@pytest.mark.unit
 def test_cli_changed_only_option(tmp_path, monkeypatch):
     """Test --changed-only option."""
     from unittest.mock import Mock, patch
@@ -193,6 +205,7 @@ def changed_function():
         mock_linter.lint_project.assert_not_called()
 
 
+@pytest.mark.unit
 def test_cli_with_config_file(tmp_path):
     """Test CLI with configuration file."""
     # Create config file
@@ -221,6 +234,7 @@ def untested_function():
     assert '"total_violations"' in result.output  # JSON format
 
 
+@pytest.mark.unit
 def test_cli_override_config_with_options(tmp_path):
     """Test CLI options override configuration file."""
     # Create config file with fail_on_error=true
@@ -247,6 +261,7 @@ def untested_function():
     assert '"total_violations"' not in result.output
 
 
+@pytest.mark.unit
 def test_cli_invalid_path():
     """Test CLI with invalid path."""
     runner = CliRunner()
@@ -255,6 +270,7 @@ def test_cli_invalid_path():
     assert result.exit_code == 2  # Click exit code for invalid path
 
 
+@pytest.mark.unit
 def test_cli_file_path(tmp_path):
     """Test linting a single file instead of directory."""
     # Create a single Python file
@@ -271,6 +287,7 @@ def single_function():
     assert "single_function" in result.output
 
 
+@pytest.mark.unit
 def test_cli_empty_directory(tmp_path):
     """Test linting an empty directory."""
     runner = CliRunner()
@@ -280,6 +297,7 @@ def test_cli_empty_directory(tmp_path):
     assert "No violations found" in result.output
 
 
+@pytest.mark.unit
 def test_cli_no_python_files(tmp_path):
     """Test directory with no Python files."""
     # Create only non-Python files

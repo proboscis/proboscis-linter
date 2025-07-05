@@ -6,6 +6,7 @@ from proboscis_linter.models import LintViolation
 from proboscis_linter.report_generator import TextReportGenerator, JsonReportGenerator
 
 
+@pytest.mark.integration
 def test_TextReportGenerator_generate_report():
     """Integration test for TextReportGenerator.generate_report method."""
     generator = TextReportGenerator()
@@ -27,12 +28,14 @@ def test_TextReportGenerator_generate_report():
     assert "test_func" in report
 
 
+@pytest.mark.integration
 def test_TextReportGenerator_get_format_name():
     """Integration test for TextReportGenerator.get_format_name method."""
     generator = TextReportGenerator()
     assert generator.get_format_name() == "text"
 
 
+@pytest.mark.integration
 def test_JsonReportGenerator_generate_report():
     """Integration test for JsonReportGenerator.generate_report method."""
     generator = JsonReportGenerator()
@@ -57,6 +60,7 @@ def test_JsonReportGenerator_generate_report():
     assert data["violations"][0]["rule_name"] == "PL002:require-integration-test"
 
 
+@pytest.mark.integration
 def test_JsonReportGenerator_get_format_name():
     """Integration test for JsonReportGenerator.get_format_name method."""
     generator = JsonReportGenerator()
@@ -135,6 +139,7 @@ class TestReportGeneratorIntegration:
             )
         ]
     
+    @pytest.mark.integration
     def test_text_report_complex_output(self, complex_violations):
         """Test text report with complex violation set."""
         generator = TextReportGenerator()
@@ -171,6 +176,7 @@ class TestReportGeneratorIntegration:
         assert "Total violations: 7" in report
         assert "Tip:" in report
     
+    @pytest.mark.integration
     def test_json_report_complex_structure(self, complex_violations):
         """Test JSON report with complex violation set."""
         generator = JsonReportGenerator()
@@ -206,6 +212,7 @@ class TestReportGeneratorIntegration:
         severities = {v["severity"] for v in data["violations"]}
         assert severities == {"error", "warning"}
     
+    @pytest.mark.integration
     def test_report_generation_consistency(self, complex_violations):
         """Test that multiple generations produce consistent results."""
         text_gen = TextReportGenerator()
@@ -229,6 +236,7 @@ class TestReportGeneratorIntegration:
         data2 = json.loads(json_report2)
         assert data1 == data2
     
+    @pytest.mark.integration
     def test_large_violation_set(self):
         """Test report generation with many violations."""
         # Generate 1000 violations
@@ -262,6 +270,7 @@ class TestReportGeneratorIntegration:
         assert data["total_violations"] == 1000
         assert len(data["violations"]) == 1000
     
+    @pytest.mark.integration
     def test_report_ordering(self):
         """Test that violations maintain order in reports."""
         violations = [
@@ -311,6 +320,7 @@ class TestReportGeneratorIntegration:
         assert data["violations"][1]["file"] == "a_first.py"
         assert data["violations"][2]["file"] == "m_middle.py"
     
+    @pytest.mark.integration
     def test_unicode_and_special_paths(self):
         """Test report generation with unicode and special characters."""
         violations = [
@@ -350,6 +360,7 @@ class TestReportGeneratorIntegration:
         assert "函数_name" == data["violations"][0]["function"]
         assert "my-func$special" == data["violations"][1]["function"]
     
+    @pytest.mark.integration
     def test_empty_edge_cases(self):
         """Test edge cases with empty or minimal data."""
         # Empty violations

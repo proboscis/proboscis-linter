@@ -8,6 +8,7 @@ from proboscis_linter.sample import add, subtract, multiply, divide, complex_fun
 
 
 # Direct test function expected by the linter
+@pytest.mark.e2e
 def test_complex_function():
     """Test complex_function in e2e context."""
     # Test in a real-world scenario
@@ -22,6 +23,7 @@ def test_complex_function():
 class TestSampleE2E:
     """End-to-end tests for sample module in realistic scenarios."""
     
+    @pytest.mark.e2e
     def test_calculator_simulation(self):
         """Simulate a calculator application using the sample functions."""
         # Simulate a series of calculator operations
@@ -56,6 +58,7 @@ class TestSampleE2E:
         result = subtract(temp2, temp3)  # 115
         assert result == 115.0
     
+    @pytest.mark.e2e
     def test_financial_calculations(self):
         """Test sample functions in financial calculation scenarios."""
         # Calculate simple interest: Principal * Rate * Time / 100
@@ -99,6 +102,7 @@ class TestSampleE2E:
         
         assert year3_total == 1331.0
     
+    @pytest.mark.e2e
     def test_scientific_calculations(self):
         """Test sample functions in scientific calculation scenarios."""
         # Calculate velocity: distance / time
@@ -128,6 +132,7 @@ class TestSampleE2E:
         fahrenheit = add(temp2, 32)
         assert fahrenheit == 77.0
     
+    @pytest.mark.e2e
     def test_game_score_calculations(self):
         """Test sample functions in a game scoring system."""
         # Basic scoring system
@@ -164,6 +169,7 @@ class TestSampleE2E:
         dynamic_score = complex_function(performance, difficulty, time_bonus)
         assert dynamic_score == 13  # -(-2) - (-1) + 10
     
+    @pytest.mark.e2e
     def test_data_analysis_calculations(self):
         """Test sample functions in data analysis scenarios."""
         # Calculate mean of a dataset
@@ -201,6 +207,7 @@ class TestSampleE2E:
         data_range = subtract(max_value, min_value)
         assert data_range == 40
     
+    @pytest.mark.e2e
     def test_error_handling_in_applications(self):
         """Test error handling in realistic application scenarios."""
         # Scenario 1: User input validation for division
@@ -251,6 +258,7 @@ class TestSampleE2E:
                 assert error is None
                 assert result == divide(add(a, b), c)
     
+    @pytest.mark.e2e
     def test_performance_with_many_operations(self):
         """Test performance with many operations."""
         import time
@@ -276,6 +284,7 @@ class TestSampleE2E:
         # Verify result is reasonable
         assert result > 0
     
+    @pytest.mark.e2e
     def test_module_as_library(self):
         """Test using the sample module as a library in scripts."""
         # Create a temporary Python script that uses the sample module

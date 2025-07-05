@@ -9,6 +9,7 @@ from proboscis_linter.linter import ProboscisLinter
 from proboscis_linter.config import ProboscisConfig
 
 
+@pytest.mark.integration
 def test_pl004_integration_with_full_project():
     """Test PL004 on a full project with mixed test types."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -31,10 +32,12 @@ def multiply(x, y):
         (unit_dir / "test_calculator.py").write_text("""
 import pytest
 
+@pytest.mark.integration
 def test_add():  # Missing @pytest.mark.unit
     from src.calculator import add
     assert add(1, 2) == 3
 
+@pytest.mark.integration
 @pytest.mark.unit
 def test_multiply():
     from src.calculator import multiply
@@ -53,6 +56,7 @@ def test_calculator_workflow():
     result = add(2, 3)
     assert multiply(result, 2) == 10
 
+@pytest.mark.integration
 def test_another_workflow():  # Missing @pytest.mark.integration
     pass
 """)
@@ -61,10 +65,12 @@ def test_another_workflow():  # Missing @pytest.mark.integration
         e2e_dir = root / "test" / "e2e"
         e2e_dir.mkdir(parents=True)
         (e2e_dir / "test_calculator_e2e.py").write_text("""
+@pytest.mark.integration
 @pytest.mark.e2e
 def test_full_calculation():
     pass
 
+@pytest.mark.integration
 def test_missing_marker():  # Missing @pytest.mark.e2e
     pass
 """)
@@ -86,6 +92,7 @@ def test_missing_marker():  # Missing @pytest.mark.e2e
         assert "test_missing_marker" in violation_funcs
 
 
+@pytest.mark.integration
 def test_pl004_cli_integration():
     """Test PL004 via CLI with JSON output."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -96,9 +103,11 @@ def test_pl004_cli_integration():
         test_dir.mkdir(parents=True)
         test_file = test_dir / "test_sample.py"
         test_file.write_text("""
+@pytest.mark.integration
 def test_missing_marker():
     assert True
 
+@pytest.mark.integration
 @pytest.mark.unit
 def test_with_marker():
     assert True
@@ -123,6 +132,7 @@ def test_with_marker():
         assert "@pytest.mark.unit" in pl004_violations[0]["message"]
 
 
+@pytest.mark.integration
 def test_pl004_with_config_file():
     """Test PL004 can be configured via pyproject.toml."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -146,6 +156,7 @@ PL004 = false
         test_dir.mkdir(parents=True)
         test_file = test_dir / "test_sample.py"
         test_file.write_text("""
+@pytest.mark.integration
 def test_missing_marker():
     assert True
 """)
@@ -163,6 +174,7 @@ def test_missing_marker():
         assert len(pl004_violations) == 0
 
 
+@pytest.mark.integration
 def test_pl004_mixed_markers():
     """Test PL004 with various marker formats."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -176,23 +188,28 @@ def test_pl004_mixed_markers():
 import pytest
 from pytest import mark
 
+@pytest.mark.integration
 @pytest.mark.unit
 def test_full_form():
     pass
 
+@pytest.mark.integration
 @mark.unit
 def test_short_form():
     pass
 
+@pytest.mark.integration
 @pytest.mark.unit
 @pytest.mark.slow
 def test_multiple_markers():
     pass
 
+@pytest.mark.integration
 @pytest.mark.slow
 def test_wrong_marker_only():  # Missing unit marker
     pass
 
+@pytest.mark.integration
 def test_no_markers():  # Missing unit marker
     pass
 """)
@@ -212,6 +229,7 @@ def test_no_markers():  # Missing unit marker
         assert "test_no_markers" in violation_funcs
 
 
+@pytest.mark.integration
 def test_pl004_performance():
     """Test PL004 performance with many test files."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -260,6 +278,7 @@ def test_function_{i}_3():
         assert len(pl004_violations) == 30
 
 
+@pytest.mark.integration
 def test_pl004_exclude_patterns():
     """Test PL004 respects exclude patterns."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -271,6 +290,7 @@ def test_pl004_exclude_patterns():
         
         # Regular test file
         (test_dir / "test_regular.py").write_text("""
+@pytest.mark.integration
 def test_missing_marker():
     pass
 """)
@@ -278,6 +298,7 @@ def test_missing_marker():
         # Test file to be excluded
         (test_dir / "test_generated.py").write_text("""
 # This is a generated file
+@pytest.mark.integration
 def test_missing_marker():
     pass
 """)

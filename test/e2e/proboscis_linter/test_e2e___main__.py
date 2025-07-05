@@ -124,11 +124,13 @@ import pytest
 from myproject.main import parse_args, run
 
 
+@pytest.mark.e2e
 def test_parse_args():
     # Test basic functionality
     pass
 
 
+@pytest.mark.e2e
 def test_run():
     # Test run function
     pass
@@ -139,6 +141,7 @@ import pytest
 from myproject.utils import validate_config
 
 
+@pytest.mark.e2e
 def test_validate_config():
     config = {"name": "test", "version": "1.0"}
     assert validate_config(config) is True
@@ -146,6 +149,7 @@ def test_validate_config():
             
             yield root
     
+    @pytest.mark.e2e
     def test_run_as_module(self, real_world_project):
         """Test running proboscis_linter as a module on a real project."""
         result = subprocess.run(
@@ -166,6 +170,7 @@ def test_validate_config():
         # Should not report tested functions
         assert "Function 'validate_config' missing unit test" not in result.stdout
     
+    @pytest.mark.e2e
     def test_run_with_python_path(self, real_world_project):
         """Test running __main__.py directly with proper Python path."""
         # Find the actual __main__.py file
@@ -187,6 +192,7 @@ def test_validate_config():
             assert result.returncode == 0
             assert '"total_violations"' in result.stdout
     
+    @pytest.mark.e2e
     def test_ci_pipeline_simulation(self, real_world_project):
         """Simulate a CI pipeline using proboscis-linter."""
         # Create a CI script
@@ -219,6 +225,7 @@ echo "Linting completed!"
         assert "Running proboscis-linter..." in result.stdout
         assert "violations" in result.stdout or "violations" in result.stderr
     
+    @pytest.mark.e2e
     def test_pre_commit_hook_simulation(self, real_world_project):
         """Simulate using proboscis-linter as a pre-commit hook."""
         # Initialize git repo
@@ -261,6 +268,7 @@ exit 0
         # Check that linter was run
         assert "Running proboscis-linter on changed files..." in result.stdout
     
+    @pytest.mark.e2e
     def test_docker_simulation(self):
         """Simulate running proboscis-linter in a Docker-like environment."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -314,6 +322,7 @@ CMD ["python", "app/server.py"]
             assert "stop_server" in result.stdout
             assert "health_check" in result.stdout
     
+    @pytest.mark.e2e
     def test_vscode_integration_simulation(self, real_world_project):
         """Simulate VSCode integration scenario."""
         # Create VSCode tasks.json that would run linter
@@ -363,6 +372,7 @@ CMD ["python", "app/server.py"]
         assert 'total_violations' in output_data
         assert 'violations' in output_data
     
+    @pytest.mark.e2e
     def test_makefile_integration(self, real_world_project):
         """Test integration with Makefile workflow."""
         makefile = real_world_project / "Makefile"
@@ -404,6 +414,7 @@ all: check
             )
             assert result.returncode == 0
     
+    @pytest.mark.e2e
     def test_performance_large_project(self):
         """Test performance on a large project."""
         with tempfile.TemporaryDirectory() as tmpdir:

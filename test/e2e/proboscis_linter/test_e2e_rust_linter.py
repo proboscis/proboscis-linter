@@ -7,6 +7,7 @@ from proboscis_linter.rust_linter import RustLinterWrapper
 from proboscis_linter.config import ProboscisConfig
 
 
+@pytest.mark.e2e
 def test_RustLinterWrapper_lint_project():
     """E2E test for RustLinterWrapper.lint_project method."""
     config = ProboscisConfig()
@@ -35,6 +36,7 @@ def test_RustLinterWrapper_lint_project():
             assert violations[0].file_path == Path("/test/file.py")
 
 
+@pytest.mark.e2e
 def test_RustLinterWrapper_lint_file():
     """E2E test for RustLinterWrapper.lint_file method."""
     config = ProboscisConfig()
@@ -63,6 +65,7 @@ def test_RustLinterWrapper_lint_file():
             assert violations[0].file_path == Path("/test/file.py")
 
 
+@pytest.mark.e2e
 def test_RustLinterWrapper_lint_changed_files():
     """E2E test for RustLinterWrapper.lint_changed_files method."""
     config = ProboscisConfig()
@@ -113,6 +116,7 @@ class TestRustLinterE2E:
             
             yield project_dir
     
+    @pytest.mark.e2e
     @patch('proboscis_linter.rust_linter.RUST_AVAILABLE', True)
     @patch('proboscis_linter.rust_linter.proboscis_linter_rust')
     def test_full_project_lint_workflow(self, mock_rust_module, temp_project):
@@ -173,6 +177,7 @@ class TestRustLinterE2E:
         assert len(utils_violations) == 1
         assert utils_violations[0].function_name == "format_date"
     
+    @pytest.mark.e2e
     @patch('proboscis_linter.rust_linter.RUST_AVAILABLE', True)
     @patch('proboscis_linter.rust_linter.proboscis_linter_rust')
     def test_git_changed_files_workflow(self, mock_rust_module, temp_project):
@@ -227,6 +232,7 @@ class TestRustLinterE2E:
         assert len(existing_violations) == 1
         assert existing_violations[0].function_name == "updated_function"
     
+    @pytest.mark.e2e
     @patch('proboscis_linter.rust_linter.RUST_AVAILABLE', True)
     @patch('proboscis_linter.rust_linter.proboscis_linter_rust')
     def test_large_project_performance_scenario(self, mock_rust_module, temp_project):
@@ -279,6 +285,7 @@ class TestRustLinterE2E:
         unique_files = {str(v.file_path) for v in violations}
         assert len(unique_files) == 100
     
+    @pytest.mark.e2e
     @patch('proboscis_linter.rust_linter.RUST_AVAILABLE', True)
     @patch('proboscis_linter.rust_linter.proboscis_linter_rust')
     def test_mixed_language_project(self, mock_rust_module, temp_project):
@@ -320,6 +327,7 @@ class TestRustLinterE2E:
         module_names = {v.function_name.replace("_handler", "") for v in violations}
         assert module_names == {"api", "core", "utils", "models"}
     
+    @pytest.mark.e2e
     @patch('proboscis_linter.rust_linter.RUST_AVAILABLE', True)
     @patch('proboscis_linter.rust_linter.proboscis_linter_rust')
     def test_custom_test_structure_project(self, mock_rust_module, temp_project):

@@ -4,6 +4,7 @@ from pathlib import Path
 from proboscis_linter.config import ProboscisConfig, ConfigLoader, RuleConfig
 
 
+@pytest.mark.integration
 def test_ProboscisConfig_validate_output_format():
     """Integration test for ProboscisConfig.validate_output_format method."""
     # Test valid formats
@@ -19,6 +20,7 @@ def test_ProboscisConfig_validate_output_format():
         ProboscisConfig.validate_output_format("yaml")
 
 
+@pytest.mark.integration
 def test_ProboscisConfig_validate_non_empty_list():
     """Integration test for ProboscisConfig.validate_non_empty_list method."""
     # Test valid lists
@@ -31,6 +33,7 @@ def test_ProboscisConfig_validate_non_empty_list():
         ProboscisConfig.validate_non_empty_list([])
 
 
+@pytest.mark.integration
 def test_ProboscisConfig_is_rule_enabled():
     """Integration test for ProboscisConfig.is_rule_enabled method."""
     config = ProboscisConfig(
@@ -51,6 +54,7 @@ def test_ProboscisConfig_is_rule_enabled():
     assert config.is_rule_enabled("NEW_RULE") is True
 
 
+@pytest.mark.integration
 def test_ProboscisConfig_get_rule_options():
     """Integration test for ProboscisConfig.get_rule_options method."""
     config = ProboscisConfig(
@@ -76,6 +80,7 @@ def test_ProboscisConfig_get_rule_options():
     assert config.get_rule_options("UNKNOWN") == {}
 
 
+@pytest.mark.integration
 def test_ConfigLoader_load_from_file():
     """Integration test for ConfigLoader.load_from_file method."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -109,6 +114,7 @@ PL002 = false
         assert config.is_rule_enabled("PL002") is False
 
 
+@pytest.mark.integration
 def test_ConfigLoader_find_config_file():
     """Integration test for ConfigLoader.find_config_file method."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -135,6 +141,7 @@ def test_ConfigLoader_find_config_file():
         assert ConfigLoader.find_config_file(tmppath / "a") is None
 
 
+@pytest.mark.integration
 def test_ConfigLoader_merge_cli_options():
     """Integration test for ConfigLoader.merge_cli_options method."""
     # Create base config
@@ -180,6 +187,7 @@ def test_ConfigLoader_merge_cli_options():
 class TestConfigIntegration:
     """Integration tests for configuration loading and management."""
     
+    @pytest.mark.integration
     def test_load_complex_config_file(self):
         """Test loading a complex configuration file with all features."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -238,6 +246,7 @@ requires = ["setuptools", "wheel"]
             assert config.get_rule_options("PL003") == {"severity": "warning", "max_violations": 10}
             assert config.get_rule_options("PL004") == {"ignore_private": True}
     
+    @pytest.mark.integration
     def test_config_inheritance_hierarchy(self):
         """Test configuration inheritance in nested directory structure."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -294,6 +303,7 @@ PL003 = true
             assert config.test_directories == ["tests"]
             assert config.output_format == "text"
     
+    @pytest.mark.integration
     def test_cli_override_integration(self):
         """Test CLI options overriding file configuration."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -336,6 +346,7 @@ PL002 = false
             assert cli_config.is_rule_enabled("PL001") is True
             assert cli_config.is_rule_enabled("PL002") is False
     
+    @pytest.mark.integration
     def test_config_validation_integration(self):
         """Test configuration validation with various invalid configs."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -371,6 +382,7 @@ PL001 = "invalid"
             # Should handle gracefully and use defaults
             assert config.is_rule_enabled("PL001") is True  # Default
     
+    @pytest.mark.integration
     def test_missing_config_fallback(self):
         """Test behavior when no config file exists."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -392,6 +404,7 @@ PL001 = "invalid"
             assert config.fail_on_error is False
             assert config.rules == {}
     
+    @pytest.mark.integration
     def test_config_with_environment_variables(self):
         """Test configuration interaction with environment settings."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -429,6 +442,7 @@ PL001 = false
             assert config.output_format == "json"
             assert config.is_rule_enabled("PL001") is False
     
+    @pytest.mark.integration
     def test_rule_configuration_combinations(self):
         """Test various rule configuration combinations."""
         config = ProboscisConfig(

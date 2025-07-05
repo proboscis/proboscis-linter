@@ -6,6 +6,7 @@ from proboscis_linter.rust_linter import RustLinterWrapper
 from proboscis_linter.config import ProboscisConfig, RuleConfig
 
 
+@pytest.mark.integration
 def test_RustLinterWrapper_lint_project():
     """Integration test for RustLinterWrapper.lint_project method."""
     config = ProboscisConfig()
@@ -34,6 +35,7 @@ def test_RustLinterWrapper_lint_project():
             mock_rust_linter.lint_project.assert_called_once()
 
 
+@pytest.mark.integration
 def test_RustLinterWrapper_lint_file():
     """Integration test for RustLinterWrapper.lint_file method."""
     config = ProboscisConfig()
@@ -62,6 +64,7 @@ def test_RustLinterWrapper_lint_file():
             mock_rust_linter.lint_file.assert_called_once()
 
 
+@pytest.mark.integration
 def test_RustLinterWrapper_lint_changed_files():
     """Integration test for RustLinterWrapper.lint_changed_files method."""
     config = ProboscisConfig()
@@ -93,6 +96,7 @@ def test_RustLinterWrapper_lint_changed_files():
 class TestRustLinterIntegration:
     """Integration tests for RustLinterWrapper."""
     
+    @pytest.mark.integration
     @patch('proboscis_linter.rust_linter.RUST_AVAILABLE', True)
     @patch('proboscis_linter.rust_linter.proboscis_linter_rust')
     def test_lint_project_with_custom_config(self, mock_rust_module):
@@ -143,6 +147,7 @@ class TestRustLinterIntegration:
         assert rule_names.count("PL001:require-unit-test") == 2
         assert "PL003:require-e2e-test" in rule_names
     
+    @pytest.mark.integration
     @patch('proboscis_linter.rust_linter.RUST_AVAILABLE', True)
     @patch('proboscis_linter.rust_linter.proboscis_linter_rust')
     def test_lint_file_integration(self, mock_rust_module):
@@ -188,6 +193,7 @@ class TestRustLinterIntegration:
             "PL003:require-e2e-test"
         }
     
+    @pytest.mark.integration
     @patch('proboscis_linter.rust_linter.RUST_AVAILABLE', True)
     @patch('proboscis_linter.rust_linter.proboscis_linter_rust')
     def test_lint_changed_files_with_mixed_results(self, mock_rust_module):
@@ -238,6 +244,7 @@ class TestRustLinterIntegration:
         file_paths = {str(v.file_path) for v in violations}
         assert file_paths == {"/src/changed1.py", "/src/changed3.py"}
     
+    @pytest.mark.integration
     @patch('proboscis_linter.rust_linter.RUST_AVAILABLE', True)
     @patch('proboscis_linter.rust_linter.proboscis_linter_rust')
     def test_error_handling_in_lint_operations(self, mock_rust_module):
@@ -266,6 +273,7 @@ class TestRustLinterIntegration:
         with pytest.raises(OSError, match="Git command failed"):
             wrapper.lint_changed_files(Path("/test/project"))
     
+    @pytest.mark.integration
     @patch('proboscis_linter.rust_linter.RUST_AVAILABLE', True)
     @patch('proboscis_linter.rust_linter.proboscis_linter_rust')
     def test_complex_rule_filtering_scenario(self, mock_rust_module):

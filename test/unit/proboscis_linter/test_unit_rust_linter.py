@@ -10,6 +10,7 @@ from proboscis_linter.models import LintViolation
 class TestRustLinterWrapper:
     """Test RustLinterWrapper class."""
     
+    @pytest.mark.unit
     def test_init_without_rust_extension(self):
         """Test initialization when Rust extension is not available."""
         with patch('proboscis_linter.rust_linter.RUST_AVAILABLE', False):
@@ -17,6 +18,7 @@ class TestRustLinterWrapper:
             with pytest.raises(ImportError, match="Rust extension not built"):
                 RustLinterWrapper(config)
     
+    @pytest.mark.unit
     @patch('proboscis_linter.rust_linter.RUST_AVAILABLE', True)
     @patch('proboscis_linter.rust_linter.proboscis_linter_rust')
     def test_init_with_rust_extension(self, mock_rust_module):
@@ -39,6 +41,7 @@ class TestRustLinterWrapper:
         assert wrapper._rust_linter == mock_rust_linter
         assert wrapper._config == config
     
+    @pytest.mark.unit
     @patch('proboscis_linter.rust_linter.RUST_AVAILABLE', True)
     @patch('proboscis_linter.rust_linter.proboscis_linter_rust')
     def test_lint_project(self, mock_rust_module):
@@ -76,6 +79,7 @@ class TestRustLinterWrapper:
         assert violations[0].message == "Missing unit test"
         assert violations[0].severity == "error"
     
+    @pytest.mark.unit
     @patch('proboscis_linter.rust_linter.RUST_AVAILABLE', True)
     @patch('proboscis_linter.rust_linter.proboscis_linter_rust')
     def test_lint_project_filters_disabled_rules(self, mock_rust_module):
@@ -114,6 +118,7 @@ class TestRustLinterWrapper:
         assert len(violations) == 1
         assert violations[0].rule_name == "PL002:require-integration-test"
     
+    @pytest.mark.unit
     @patch('proboscis_linter.rust_linter.RUST_AVAILABLE', True)
     @patch('proboscis_linter.rust_linter.proboscis_linter_rust')
     def test_lint_file(self, mock_rust_module):
@@ -147,6 +152,7 @@ class TestRustLinterWrapper:
         assert isinstance(violations[0], LintViolation)
         assert violations[0].rule_name == "PL001:require-unit-test"
     
+    @pytest.mark.unit
     @patch('proboscis_linter.rust_linter.RUST_AVAILABLE', True)
     @patch('proboscis_linter.rust_linter.proboscis_linter_rust')
     def test_lint_changed_files(self, mock_rust_module):
@@ -180,6 +186,7 @@ class TestRustLinterWrapper:
         assert violations[0].file_path == Path("/path/to/changed.py")
         assert violations[0].function_name == "changed_function"
     
+    @pytest.mark.unit
     @patch('proboscis_linter.rust_linter.RUST_AVAILABLE', True)
     @patch('proboscis_linter.rust_linter.proboscis_linter_rust')
     def test_empty_violations(self, mock_rust_module):

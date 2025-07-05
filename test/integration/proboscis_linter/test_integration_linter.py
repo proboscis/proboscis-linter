@@ -8,6 +8,7 @@ from proboscis_linter.config import ProboscisConfig, RuleConfig
 from proboscis_linter.models import LintViolation
 
 
+@pytest.mark.integration
 def test_ProboscisLinter_lint_project():
     """Integration test for ProboscisLinter.lint_project method."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -44,6 +45,7 @@ def subtract(x, y):
         assert any(v.function_name == "subtract" for v in violations)
 
 
+@pytest.mark.integration
 def test_ProboscisLinter_lint_file():
     """Integration test for ProboscisLinter.lint_file method."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -74,6 +76,7 @@ def validate_input(value):
         assert any(v.function_name == "validate_input" for v in violations)
 
 
+@pytest.mark.integration
 def test_ProboscisLinter_lint_changed_files():
     """Integration test for ProboscisLinter.lint_changed_files method."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -192,14 +195,17 @@ class Session:
             unit = tests / "unit"
             unit.mkdir()
             (unit / "test_main.py").write_text("""
+@pytest.mark.integration
 def test_initialize_app():
     pass
 
+@pytest.mark.integration
 def test_Application_start():
     pass
 """)
             
             (unit / "test_helpers.py").write_text("""
+@pytest.mark.integration
 def test_validate_input():
     pass
 """)
@@ -208,9 +214,11 @@ def test_validate_input():
             integration = tests / "integration"
             integration.mkdir()
             (integration / "test_database.py").write_text("""
+@pytest.mark.integration
 def test_User_save():
     pass
 
+@pytest.mark.integration
 def test_Session_create():
     pass
 """)
@@ -219,12 +227,14 @@ def test_Session_create():
             e2e = tests / "e2e"
             e2e.mkdir()
             (e2e / "test_application.py").write_text("""
+@pytest.mark.integration
 def test_Application_restart():
     pass
 """)
             
             yield root
     
+    @pytest.mark.integration
     def test_lint_complex_project(self, complex_project):
         """Test linting a complex project with various scenarios."""
         linter = ProboscisLinter()
@@ -258,6 +268,7 @@ def test_Application_restart():
         assert all("PL001" not in v.rule_name for v in log_violations)
         assert len(log_violations) == 2  # Only PL002 and PL003
     
+    @pytest.mark.integration
     def test_lint_with_custom_config(self, complex_project):
         """Test linting with custom configuration."""
         # Custom config with different test patterns
@@ -287,6 +298,7 @@ def test_Application_restart():
         assert "PL003" in rule_types
         assert "PL002" not in rule_types
     
+    @pytest.mark.integration
     def test_lint_changed_files_integration(self, complex_project):
         """Test linting changed files with mocked git changes."""
         from unittest.mock import patch, Mock
@@ -324,6 +336,7 @@ def test_Application_restart():
             assert violations[0].function_name == "run_server"
             assert violations[1].function_name == "format_output"
     
+    @pytest.mark.integration
     def test_incremental_test_development(self, complex_project):
         """Test how violations change as tests are added incrementally."""
         linter = ProboscisLinter()
@@ -335,9 +348,11 @@ def test_Application_restart():
         # Add more unit tests
         unit_test_file = complex_project / "test" / "unit" / "test_main.py"
         unit_test_file.write_text(unit_test_file.read_text() + """
+@pytest.mark.integration
 def test_run_server():
     pass
 
+@pytest.mark.integration
 def test_Application_stop():
     pass
 """)
@@ -357,9 +372,11 @@ def test_Application_stop():
         # Add integration tests
         integration_test_file = complex_project / "test" / "integration" / "test_main_integration.py"
         integration_test_file.write_text("""
+@pytest.mark.integration
 def test_run_server_integration():
     pass
 
+@pytest.mark.integration
 def test_Application_stop_integration():
     pass
 """)
@@ -371,6 +388,7 @@ def test_Application_stop_integration():
         # Should have even fewer violations
         assert final_count < after_unit_count
     
+    @pytest.mark.integration
     def test_mixed_test_locations(self):
         """Test handling of tests in non-standard locations."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -395,6 +413,7 @@ def func3():
             standard_tests = root / "test" / "unit"
             standard_tests.mkdir(parents=True)
             (standard_tests / "test_module.py").write_text("""
+@pytest.mark.integration
 def test_func1():
     pass
 """)
@@ -403,6 +422,7 @@ def test_func1():
             alt_tests = root / "tests"
             alt_tests.mkdir()
             (alt_tests / "test_module.py").write_text("""
+@pytest.mark.integration
 def test_func2():
     pass
 """)
@@ -411,6 +431,7 @@ def test_func2():
             custom_tests = root / "spec"
             custom_tests.mkdir()
             (custom_tests / "module_spec.py").write_text("""
+@pytest.mark.integration
 def test_func3():
     pass
 """)
@@ -437,6 +458,7 @@ def test_func3():
             func_violations_custom = {v.function_name for v in violations_custom if "PL001" in v.rule_name}
             assert "func3" not in func_violations_custom or len(func_violations_custom) == 0
     
+    @pytest.mark.integration
     def test_performance_with_many_files(self):
         """Test linter performance with many files."""
         with tempfile.TemporaryDirectory() as tmpdir:

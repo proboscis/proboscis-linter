@@ -4,6 +4,7 @@ from proboscis_linter.sample import add, subtract, multiply, divide, complex_fun
 
 
 # Direct test function expected by the linter
+@pytest.mark.integration
 def test_complex_function():
     """Test complex_function in integration context."""
     # Test with calculated inputs
@@ -17,6 +18,7 @@ def test_complex_function():
 class TestSampleIntegration:
     """Integration tests for sample module functions working together."""
     
+    @pytest.mark.integration
     def test_arithmetic_operations_chain(self):
         """Test chaining multiple arithmetic operations."""
         # (5 + 3) * 2 - 4 = 12
@@ -31,6 +33,7 @@ class TestSampleIntegration:
         result3 = add(result2, 2)
         assert result3 == 22
     
+    @pytest.mark.integration
     def test_division_with_other_operations(self):
         """Test division combined with other operations."""
         # (20 / 4) + 5 = 10
@@ -49,6 +52,7 @@ class TestSampleIntegration:
         result = divide(numerator, denominator)
         assert result == 5.0
     
+    @pytest.mark.integration
     def test_complex_function_with_calculated_inputs(self):
         """Test complex_function using results from other functions."""
         # Use arithmetic results as inputs to complex_function
@@ -67,6 +71,7 @@ class TestSampleIntegration:
         result = complex_function(x, y, z)
         assert result == 25  # -(-5) - (-5) + 15 (x < 0, y < 0)
     
+    @pytest.mark.integration
     def test_error_propagation(self):
         """Test error handling across function combinations."""
         # Division by zero in a chain
@@ -83,6 +88,7 @@ class TestSampleIntegration:
         with pytest.raises(ValueError, match="Cannot divide by zero"):
             divide(100, c)
     
+    @pytest.mark.integration
     def test_mathematical_properties(self):
         """Test mathematical properties using the functions."""
         # Commutative property of addition
@@ -102,6 +108,7 @@ class TestSampleIntegration:
         assert multiply(5, 1) == 5
         assert divide(5, 1) == 5.0
     
+    @pytest.mark.integration
     def test_complex_calculations(self):
         """Test more complex mathematical calculations."""
         # Calculate average: (a + b + c) / 3
@@ -128,6 +135,7 @@ class TestSampleIntegration:
         result = add(add(ax_squared, bx), c)  # 32 + 12 + 1 = 45
         assert result == 45
     
+    @pytest.mark.integration
     def test_complex_function_combinations(self):
         """Test complex_function with various calculated inputs."""
         # Test all branches with calculated values
@@ -150,6 +158,7 @@ class TestSampleIntegration:
             result = complex_function(x, y, z)
             assert result == expected, f"Failed for branch {branch}"
     
+    @pytest.mark.integration
     def test_precision_and_rounding(self):
         """Test precision in calculations involving division."""
         # Test that division maintains float precision
@@ -169,6 +178,7 @@ class TestSampleIntegration:
         # Verify the result is within expected range
         assert 15.4 < e < 15.5
     
+    @pytest.mark.integration
     def test_stress_calculations(self):
         """Test functions with many operations."""
         # Factorial-like calculation using repeated multiplication

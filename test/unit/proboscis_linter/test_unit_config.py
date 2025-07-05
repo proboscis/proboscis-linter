@@ -5,6 +5,7 @@ import pytest
 from proboscis_linter.config import ProboscisConfig, ConfigLoader, RuleConfig
 
 
+@pytest.mark.unit
 def test_default_config():
     """Test default configuration values."""
     config = ProboscisConfig()
@@ -17,6 +18,7 @@ def test_default_config():
     assert config.rules == {}
 
 
+@pytest.mark.unit
 def test_config_validation():
     """Test configuration validation."""
     # Valid config
@@ -37,6 +39,7 @@ def test_config_validation():
         ProboscisConfig(test_directories=[])
 
 
+@pytest.mark.unit
 def test_rule_config():
     """Test rule configuration."""
     config = ProboscisConfig(
@@ -55,6 +58,7 @@ def test_rule_config():
     assert config.get_rule_options("PL003") == {}
 
 
+@pytest.mark.unit
 def test_load_from_pyproject_toml(tmp_path):
     """Test loading configuration from pyproject.toml."""
     config_content = """
@@ -84,6 +88,7 @@ PL002 = false
     assert config.is_rule_enabled("PL002") is False
 
 
+@pytest.mark.unit
 def test_load_from_pyproject_toml_with_detailed_rules(tmp_path):
     """Test loading configuration with detailed rule configuration."""
     config_content = """
@@ -108,6 +113,7 @@ enabled = false
     assert config.is_rule_enabled("PL002") is False
 
 
+@pytest.mark.unit
 def test_load_missing_file():
     """Test loading from non-existent file."""
     config = ConfigLoader.load_from_file(Path("non_existent.toml"))
@@ -117,6 +123,7 @@ def test_load_missing_file():
     assert config.output_format == "text"
 
 
+@pytest.mark.unit
 def test_find_config_file(tmp_path):
     """Test finding config file in directory hierarchy."""
     # Create nested directory structure
@@ -142,6 +149,7 @@ test_directories = ["spec"]
     assert found is None
 
 
+@pytest.mark.unit
 def test_merge_cli_options():
     """Test merging CLI options with configuration."""
     config = ProboscisConfig(
@@ -174,6 +182,7 @@ def test_merge_cli_options():
     assert merged2.exclude_patterns == ["*.pyc"]
 
 
+@pytest.mark.unit
 def test_validate_output_format():
     """Test validate_output_format validator."""
     # Valid formats
@@ -188,6 +197,7 @@ def test_validate_output_format():
         ProboscisConfig.validate_output_format("yaml")
 
 
+@pytest.mark.unit
 def test_validate_non_empty_list():
     """Test validate_non_empty_list validator."""
     # Valid non-empty lists
@@ -199,6 +209,7 @@ def test_validate_non_empty_list():
         ProboscisConfig.validate_non_empty_list([])
 
 
+@pytest.mark.unit
 def test_is_rule_enabled():
     """Test is_rule_enabled method."""
     config = ProboscisConfig(
@@ -221,6 +232,7 @@ def test_is_rule_enabled():
     assert config.is_rule_enabled("PL999") is True
 
 
+@pytest.mark.unit
 def test_get_rule_options():
     """Test get_rule_options method."""
     config = ProboscisConfig(
@@ -243,6 +255,7 @@ def test_get_rule_options():
     assert config.get_rule_options("PL999") == {}
 
 
+@pytest.mark.unit
 def test_load_from_file():
     """Test load_from_file with various scenarios."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -275,6 +288,7 @@ requires = ["setuptools"]
         assert config.test_directories == ["test", "tests"]
 
 
+@pytest.mark.unit
 def test_find_config_file():
     """Test find_config_file traversing directory tree."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -319,6 +333,7 @@ test_directories = ["spec"]
         assert ConfigLoader.find_config_file(sub1) == sub1_config
 
 
+@pytest.mark.unit
 def test_merge_cli_options():
     """Test merge_cli_options with various option combinations."""
     base_config = ProboscisConfig(

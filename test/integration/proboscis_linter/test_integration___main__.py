@@ -34,12 +34,14 @@ def untested_function():
             tests = root / "tests"
             tests.mkdir()
             (tests / "test_module.py").write_text("""
+@pytest.mark.integration
 def test_tested_function():
     pass
 """)
             
             yield root
     
+    @pytest.mark.integration
     def test_main_with_cli_integration(self, sample_project):
         """Test main() integrates properly with CLI."""
         with patch('sys.argv', ['proboscis-linter', str(sample_project)]):
@@ -57,6 +59,7 @@ def test_tested_function():
             output_text = ' '.join(str(o) for o in outputs)
             assert "violations" in output_text.lower()
     
+    @pytest.mark.integration
     def test_main_command_line_options(self, sample_project):
         """Test main() with various command line options."""
         test_cases = [
@@ -81,6 +84,7 @@ def test_tested_function():
             for expected in expected_strings:
                 assert expected in result.output or expected.lower() in result.output.lower()
     
+    @pytest.mark.integration
     def test_main_with_config_file(self, sample_project):
         """Test main() respects configuration file."""
         # Create config file
@@ -105,6 +109,7 @@ PL003 = false
         # Should fail with non-zero exit due to fail_on_error
         assert result.exit_code == 1
     
+    @pytest.mark.integration
     def test_main_error_handling(self):
         """Test main() handles errors gracefully."""
         runner = CliRunner()
@@ -115,6 +120,7 @@ PL003 = false
         assert result.exit_code != 0
         assert "does not exist" in result.output or "Error" in result.output
     
+    @pytest.mark.integration
     def test_main_subprocess_execution(self, sample_project):
         """Test main can be executed as subprocess."""
         # Run as subprocess
@@ -127,6 +133,7 @@ PL003 = false
         # Should complete successfully
         assert "violations" in result.stdout.lower() or "violations" in result.stderr.lower()
     
+    @pytest.mark.integration
     def test_main_with_multiple_files(self, sample_project):
         """Test main() handles multiple files."""
         # Create additional source file
@@ -143,6 +150,7 @@ def another_untested():
         assert "module.py" in result.output
         assert "another.py" in result.output
     
+    @pytest.mark.integration
     def test_main_changed_only_integration(self, sample_project):
         """Test main() with --changed-only flag."""
         # Initialize git repo
@@ -167,6 +175,7 @@ def new_untested():
         assert "new.py" in result.output
         assert "module.py" not in result.output
     
+    @pytest.mark.integration
     def test_main_exit_codes(self, sample_project):
         """Test main() returns correct exit codes."""
         # Test success case (no violations)

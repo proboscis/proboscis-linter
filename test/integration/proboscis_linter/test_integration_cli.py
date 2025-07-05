@@ -6,6 +6,7 @@ import pytest
 from proboscis_linter.cli import cli
 
 
+@pytest.mark.integration
 def test_my_function():
     """Integration test for my_function (example in help text)."""
     # This is a placeholder test for the example function in the help text
@@ -13,6 +14,7 @@ def test_my_function():
     assert True
 
 
+@pytest.mark.integration
 def test_cli():
     """Integration test for the cli function."""
     runner = CliRunner()
@@ -100,9 +102,11 @@ def parse_json(json_str):
             
             # Add some unit tests
             (unit_tests / "test_models.py").write_text("""
+@pytest.mark.integration
 def test_create_user():
     pass
 
+@pytest.mark.integration
 def test_validate_email():
     pass
 """)
@@ -121,6 +125,7 @@ PL003 = false
             
             yield root
     
+    @pytest.mark.integration
     def test_full_project_lint_integration(self, runner, project_structure):
         """Test linting a complete project structure."""
         result = runner.invoke(cli, [str(project_structure)])
@@ -140,6 +145,7 @@ PL003 = false
         assert "create_user" not in result.output or "test_create_user" in result.output
         assert "validate_email" not in result.output or "test_validate_email" in result.output
     
+    @pytest.mark.integration
     def test_json_output_integration(self, runner, project_structure):
         """Test JSON output format with real project."""
         result = runner.invoke(cli, [str(project_structure), "--format", "json"])
@@ -164,6 +170,7 @@ PL003 = false
         assert "message" in violation
         assert "severity" in violation
     
+    @pytest.mark.integration
     def test_exclude_integration(self, runner, project_structure):
         """Test exclude patterns with real files."""
         # Exclude views module
@@ -183,6 +190,7 @@ PL003 = false
         assert "delete_user" in result.output  # From models.py
         assert "format_date" in result.output  # From helpers.py
     
+    @pytest.mark.integration
     def test_fail_on_error_integration(self, runner, project_structure):
         """Test fail-on-error with violations."""
         result = runner.invoke(cli, [
@@ -194,6 +202,7 @@ PL003 = false
         assert result.exit_code == 1
         assert "violations" in result.output
     
+    @pytest.mark.integration
     def test_verbose_mode_integration(self, runner, project_structure):
         """Test verbose logging in real scenario."""
         result = runner.invoke(cli, [
@@ -205,6 +214,7 @@ PL003 = false
         # In verbose mode, should see more detailed output
         assert "Linting" in result.output or "DEBUG" in result.output
     
+    @pytest.mark.integration
     def test_changed_only_mock_integration(self, runner, project_structure):
         """Test changed-only mode with mocked git changes."""
         from unittest.mock import patch, Mock
@@ -238,6 +248,7 @@ PL003 = false
             # Should only show violation from changed file
             assert "index_view" not in result.output  # From views.py
     
+    @pytest.mark.integration
     def test_mixed_config_and_cli_options(self, runner, project_structure):
         """Test interaction between config file and CLI options."""
         # Config file has output_format=text, we'll override with json
@@ -261,6 +272,7 @@ PL003 = false
         helper_violations = [v for v in violations if "helpers.py" in v["file"]]
         assert len(helper_violations) == 0
     
+    @pytest.mark.integration
     def test_custom_config_location(self, runner):
         """Test with config file in non-standard location."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -306,6 +318,7 @@ PL003 = true
             assert "PL002" in rules
             assert "PL003" in rules
     
+    @pytest.mark.integration
     def test_performance_with_many_files(self, runner):
         """Test CLI performance with many files."""
         with tempfile.TemporaryDirectory() as tmpdir:

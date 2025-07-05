@@ -8,6 +8,7 @@ from proboscis_linter.linter import ProboscisLinter
 from proboscis_linter.config import ProboscisConfig
 
 
+@pytest.mark.e2e
 def test_ProboscisLinter_lint_project():
     """E2E test for ProboscisLinter.lint_project method."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -49,6 +50,7 @@ class Calculator:
         assert "divide" in func_names
 
 
+@pytest.mark.e2e
 def test_ProboscisLinter_lint_file():
     """E2E test for ProboscisLinter.lint_file method."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -105,6 +107,7 @@ def hash_password(password):
         assert "hash_password" in func_names
 
 
+@pytest.mark.e2e
 def test_ProboscisLinter_lint_changed_files():
     """E2E test for ProboscisLinter.lint_changed_files method."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -341,6 +344,7 @@ import pytest
 from mypackage.core.engine import Engine, create_engine
 
 
+@pytest.mark.e2e
 def test_engine_start():
     \"\"\"Test engine start.\"\"\"
     engine = Engine()
@@ -348,6 +352,7 @@ def test_engine_start():
     assert engine._running is True
 
 
+@pytest.mark.e2e
 def test_engine_stop():
     \"\"\"Test engine stop.\"\"\"
     engine = Engine()
@@ -356,6 +361,7 @@ def test_engine_stop():
     assert engine._running is False
 
 
+@pytest.mark.e2e
 def test_create_engine():
     \"\"\"Test engine factory.\"\"\"
     config = {"debug": True}
@@ -369,12 +375,14 @@ def test_create_engine():
 from mypackage.utils.validators import validate_email, validate_url
 
 
+@pytest.mark.e2e
 def test_validate_email():
     \"\"\"Test email validation.\"\"\"
     assert validate_email("test@example.com") is True
     assert validate_email("invalid") is False
 
 
+@pytest.mark.e2e
 def test_validate_url():
     \"\"\"Test URL validation.\"\"\"
     assert validate_url("https://example.com") is True
@@ -390,6 +398,7 @@ def test_validate_url():
 from mypackage.api.routes import APIHandler
 
 
+@pytest.mark.e2e
 def test_health_check_integration():
     \"\"\"Test health check endpoint.\"\"\"
     handler = APIHandler()
@@ -430,6 +439,7 @@ setup(
             
             yield root
     
+    @pytest.mark.e2e
     def test_lint_real_project(self, real_python_project):
         """Test linting a realistic Python project."""
         linter = ProboscisLinter()
@@ -482,6 +492,7 @@ setup(
         assert "validate_phone" in validators_functions
         assert "Validator.validate" in validators_functions
     
+    @pytest.mark.e2e
     def test_incremental_development_workflow(self, real_python_project):
         """Test a typical incremental development workflow."""
         linter = ProboscisLinter()
@@ -498,6 +509,7 @@ import pytest
 from mypackage.core.engine import Engine
 
 
+@pytest.mark.e2e
 def test_engine_process():
     \"\"\"Test engine process method.\"\"\"
     engine = Engine()
@@ -506,6 +518,7 @@ def test_engine_process():
     assert result == "HELLO"
 
 
+@pytest.mark.e2e
 def test_engine_process_not_running():
     \"\"\"Test process when engine not running.\"\"\"
     engine = Engine()
@@ -513,6 +526,7 @@ def test_engine_process_not_running():
         engine.process("data")
 
 
+@pytest.mark.e2e
 def test_engine_transform():
     \"\"\"Test internal transform method.\"\"\"
     engine = Engine()
@@ -535,6 +549,7 @@ def test_engine_transform():
                                  and "PL001" in v.rule_name]
         assert len(process_unit_violations) == 0
     
+    @pytest.mark.e2e
     def test_ci_cd_simulation(self, real_python_project):
         """Simulate CI/CD pipeline using the linter."""
         # Create a simple CI script
@@ -583,6 +598,7 @@ if __name__ == "__main__":
         assert "Found" in result.stdout
         assert "violations" in result.stdout
     
+    @pytest.mark.e2e
     def test_git_integration_workflow(self, real_python_project):
         """Test git integration workflow."""
         # Initialize git repo
@@ -617,6 +633,7 @@ def validate_password(password: str) -> bool:
                              if v.function_name == "validate_password"]
         assert len(new_func_violations) > 0
     
+    @pytest.mark.e2e
     def test_monorepo_structure(self):
         """Test linting a monorepo with multiple packages."""
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -696,6 +713,7 @@ def handle_request(request):
             assert "PL001" in service_rules
             assert "PL002" not in service_rules
     
+    @pytest.mark.e2e
     def test_performance_large_codebase(self):
         """Test performance on a large codebase."""
         with tempfile.TemporaryDirectory() as tmpdir:

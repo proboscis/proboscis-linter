@@ -4,6 +4,7 @@ from proboscis_linter.linter import ProboscisLinter
 from proboscis_linter.config import ProboscisConfig
 
 
+@pytest.mark.unit
 def test_linter_no_violations(tmp_path):
     # Create source file
     src_dir = tmp_path / "src"
@@ -22,6 +23,7 @@ def exempt_function():  # noqa PL001
     test_dir.mkdir()
     test_file = test_dir / "test_module.py"
     test_file.write_text("""
+@pytest.mark.unit
 def test_tested_function():
     pass
 """)
@@ -39,6 +41,7 @@ def test_tested_function():
         assert v.rule_name.startswith("PL002") or v.rule_name.startswith("PL003")
 
 
+@pytest.mark.unit
 def test_linter_with_violations(tmp_path):
     # Create source file with untested function
     src_dir = tmp_path / "src"
@@ -67,6 +70,7 @@ def another_untested():
     assert function_names == {"untested_function", "another_untested"}
 
 
+@pytest.mark.unit
 def test_linter_exclude_patterns(tmp_path):
     # Create source files
     src_dir = tmp_path / "src"
@@ -93,6 +97,7 @@ def generated_function():
     assert all(v.file_path.name == "module.py" for v in violations)
 
 
+@pytest.mark.unit
 def test_linter_lint_file(tmp_path):
     # Create a single file
     test_file = tmp_path / "single.py"
@@ -109,6 +114,7 @@ def untested_function():
     assert all(v.function_name == "untested_function" for v in violations)
 
 
+@pytest.mark.unit
 def test_linter_init_with_config():
     """Test ProboscisLinter initialization with custom config."""
     custom_config = ProboscisConfig(
@@ -124,6 +130,7 @@ def test_linter_init_with_config():
     assert linter._rust_linter._config == custom_config
 
 
+@pytest.mark.unit
 def test_linter_init_without_config():
     """Test ProboscisLinter initialization with default config."""
     linter = ProboscisLinter()
@@ -134,6 +141,7 @@ def test_linter_init_without_config():
     assert linter._config.output_format == "text"
 
 
+@pytest.mark.unit
 def test_linter_lint_project_method():
     """Test lint_project method delegates to RustLinterWrapper."""
     from unittest.mock import Mock, patch
@@ -153,6 +161,7 @@ def test_linter_lint_project_method():
         assert result == []
 
 
+@pytest.mark.unit
 def test_linter_lint_file_method():
     """Test lint_file method delegates to RustLinterWrapper."""
     from unittest.mock import Mock, patch
@@ -173,6 +182,7 @@ def test_linter_lint_file_method():
         assert result == []
 
 
+@pytest.mark.unit
 def test_linter_lint_changed_files_method():
     """Test lint_changed_files method delegates to RustLinterWrapper."""
     from unittest.mock import Mock, patch
@@ -192,6 +202,7 @@ def test_linter_lint_changed_files_method():
         assert result == []
 
 
+@pytest.mark.unit
 def test_linter_with_disabled_rules(tmp_path):
     """Test linter with disabled rules in config."""
     # Create source file
@@ -219,6 +230,7 @@ def untested_function():
     assert rule_names == {"PL002", "PL003"}
 
 
+@pytest.mark.unit
 def test_linter_error_handling():
     """Test error handling in linter methods."""
     from unittest.mock import Mock, patch
