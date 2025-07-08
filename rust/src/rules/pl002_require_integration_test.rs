@@ -15,11 +15,11 @@ impl LintRule for PL002RequireIntegrationTest {
     fn rule_id(&self) -> &'static str {
         "PL002"
     }
-    
+
     fn rule_name(&self) -> &'static str {
         "require-integration-test"
     }
-    
+
     fn check_function(
         &self,
         function_name: &str,
@@ -35,17 +35,17 @@ impl LintRule for PL002RequireIntegrationTest {
         if suppressed_rules.contains(self.rule_id()) {
             return None;
         }
-        
+
         // Skip protocol methods
         if is_protocol && class_name.is_some() {
             return None;
         }
-        
+
         // Skip __init__ (special case)
         if function_name == "__init__" {
             return None;
         }
-        
+
         // Look for corresponding integration test using cache
         let test_found = context.test_cache.has_test_for_function_of_type(
             function_name,
@@ -55,28 +55,29 @@ impl LintRule for PL002RequireIntegrationTest {
             context.module_path,
             context.project_root,
         );
-        
+
         if !test_found {
             // Get the single canonical test pattern
             let test_name = context.test_cache.get_canonical_test_pattern(
-                function_name, 
-                class_name, 
-                &crate::test_cache::TestType::Integration
+                function_name,
+                class_name,
+                &crate::test_cache::TestType::Integration,
             );
-            
+
             // Get source file name
-            let source_file_name = file_path.file_name()
+            let source_file_name = file_path
+                .file_name()
                 .and_then(|s| s.to_str())
                 .unwrap_or("module.py");
-            
+
             // Get absolute path where test should be located
             let expected_test_file = context.test_cache.get_expected_test_file_path(
                 context.module_path,
                 source_file_name,
                 &crate::test_cache::TestType::Integration,
-                context.project_root
+                context.project_root,
             );
-            
+
             let message = if let Some(class) = class_name {
                 format!(
                     "[{}] Method '{}' of class '{}' has no integration test found.\nExpected test function: {}\nIn test file: {}",
@@ -95,7 +96,7 @@ impl LintRule for PL002RequireIntegrationTest {
                     expected_test_file.display()
                 )
             };
-            
+
             Some(LintViolation {
                 rule_name: format!("{}:{}", self.rule_id(), self.rule_name()),
                 file_path: file_path.to_string_lossy().to_string(),

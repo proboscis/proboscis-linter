@@ -21,10 +21,10 @@ pub struct RuleContext<'a> {
 pub trait LintRule {
     /// Get the rule ID (e.g., "PL001")
     fn rule_id(&self) -> &'static str;
-    
+
     /// Get the rule name (e.g., "require-test")
     fn rule_name(&self) -> &'static str;
-    
+
     /// Check if a function violates this rule
     fn check_function(
         &self,

@@ -1,10 +1,10 @@
+use rayon::prelude::*;
+use regex::Regex;
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use regex::Regex;
 use walkdir::WalkDir;
-use rayon::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum TestType {
@@ -27,7 +27,7 @@ impl TestType {
             TestType::General
         }
     }
-    
+
     pub fn as_str(&self) -> &'static str {
         match self {
             TestType::Unit => "unit",
@@ -61,11 +61,11 @@ impl TestCache {
             function_regex: Regex::new(r"^\s*def\s+(\w+)\s*\(").unwrap(),
         }
     }
-    
+
     /// Build cache from test directories
     pub fn build_from_directories(project_root: &Path, test_directories: &[String]) -> Arc<Self> {
         let mut cache = Self::new();
-        
+
         // Find all test files in parallel
         let test_files: Vec<PathBuf> = test_directories
             .par_iter()
@@ -74,19 +74,16 @@ impl TestCache {
                 if !test_dir.exists() {
                     return vec![];
                 }
-                
+
                 WalkDir::new(&test_dir)
                     .into_iter()
                     .filter_map(Result::ok)
-                    .filter(|entry| {
-                        entry.path().extension()
-                            .and_then(|s| s.to_str()) == Some("py")
-                    })
+                    .filter(|entry| entry.path().extension().and_then(|s| s.to_str()) == Some("py"))
                     .map(|entry| entry.path().to_path_buf())
                     .collect::<Vec<_>>()
             })
             .collect();
-        
+
         // Parse test files in parallel
         let file_infos: Vec<TestFileInfo> = test_files
             .par_iter()
@@ -105,19 +102,19 @@ impl TestCache {
                 None
             })
             .collect();
-        
+
         // Build the cache
         for info in file_infos {
             cache.test_files.insert(info.path.clone(), info);
         }
-        
+
         Arc::new(cache)
     }
-    
+
     /// Extract function names from file content
     fn extract_functions(&self, content: &str) -> HashSet<String> {
         let mut functions = HashSet::new();
-        
+
         for line in content.lines() {
             if let Some(captures) = self.function_regex.captures(line) {
                 if let Some(func_name) = captures.get(1) {
@@ -125,10 +122,10 @@ impl TestCache {
                 }
             }
         }
-        
+
         functions
     }
-    
+
     /// Check if a test exists for the given function
     pub fn has_test_for_function(
         &self,
@@ -137,24 +134,24 @@ impl TestCache {
         class_name: Option<&str>,
     ) -> bool {
         // Get module name for file matching
-        let module_name = source_path.file_stem()
+        let module_name = source_path
+            .file_stem()
             .and_then(|s| s.to_str())
             .unwrap_or("");
-        
+
         // Check cached test files
         for (_, info) in &self.test_files {
             // Check if this test file might be for our module
-            let file_name = info.path.file_name()
-                .and_then(|s| s.to_str())
-                .unwrap_or("");
-            
+            let file_name = info.path.file_name().and_then(|s| s.to_str()).unwrap_or("");
+
             if !file_name.contains(module_name) && !file_name.starts_with("test_") {
                 continue;
             }
-            
+
             // Generate test patterns based on test type
-            let test_patterns = self.generate_test_patterns(function_name, class_name, &info.test_type);
-            
+            let test_patterns =
+                self.generate_test_patterns(function_name, class_name, &info.test_type);
+
             // Check if any test pattern exists in this file
             for pattern in &test_patterns {
                 if info.functions.contains(pattern) {
@@ -162,10 +159,10 @@ impl TestCache {
                 }
             }
         }
-        
+
         false
     }
-    
+
     /// Check if a test of a specific type exists for the given function
     pub fn has_test_for_function_of_type(
         &self,
@@ -177,39 +174,39 @@ impl TestCache {
         project_root: &Path,
     ) -> bool {
         // Get module name for file matching
-        let module_name = source_path.file_stem()
+        let module_name = source_path
+            .file_stem()
             .and_then(|s| s.to_str())
             .unwrap_or("");
-        
+
         // Check cached test files of the specific type
         for (test_path, info) in &self.test_files {
             // Skip if not the right test type
             if &info.test_type != test_type && info.test_type != TestType::General {
                 continue;
             }
-            
+
             // Check if this test file is in the right directory structure
             // For pkg.mod1.submod, we expect tests in test/unit/pkg/mod1/test_submod.py
             if !module_path.is_empty() {
-                let expected_test_dir = self.get_expected_test_path(module_path, &info.test_type, project_root);
+                let expected_test_dir =
+                    self.get_expected_test_path(module_path, &info.test_type, project_root);
                 let test_dir = test_path.parent().unwrap_or(Path::new(""));
-                
+
                 // Check if the test file is in the expected directory
                 if !test_dir.ends_with(&expected_test_dir) {
                     // Also check if it's in the parent directory with the right name
-                    let file_name = test_path.file_name()
-                        .and_then(|s| s.to_str())
-                        .unwrap_or("");
-                    
+                    let file_name = test_path.file_name().and_then(|s| s.to_str()).unwrap_or("");
+
                     if !file_name.contains(module_name) && !file_name.starts_with("test_") {
                         continue;
                     }
                 }
             }
-            
+
             // Generate test patterns based on test type
             let test_patterns = self.generate_test_patterns(function_name, class_name, test_type);
-            
+
             // Check if any test pattern exists in this file
             for pattern in &test_patterns {
                 if info.functions.contains(pattern) {
@@ -217,10 +214,10 @@ impl TestCache {
                 }
             }
         }
-        
+
         false
     }
-    
+
     /// Get the single canonical test pattern for a function
     pub fn get_canonical_test_pattern(
         &self,
@@ -241,7 +238,7 @@ impl TestCache {
             format!("test_{}", function_name)
         }
     }
-    
+
     /// Generate test patterns based on function name, class, and test type
     pub fn generate_test_patterns(
         &self,
@@ -250,7 +247,7 @@ impl TestCache {
         test_type: &TestType,
     ) -> Vec<String> {
         let mut patterns = vec![];
-        
+
         // If this is a class method, use different naming patterns
         if let Some(class) = class_name {
             match test_type {
@@ -311,15 +308,20 @@ impl TestCache {
                 }
             }
         }
-        
+
         patterns
     }
-    
+
     /// Get expected test path for a module
-    pub fn get_expected_test_path(&self, module_path: &str, test_type: &TestType, project_root: &Path) -> PathBuf {
+    pub fn get_expected_test_path(
+        &self,
+        module_path: &str,
+        test_type: &TestType,
+        project_root: &Path,
+    ) -> PathBuf {
         // Split module path into components
         let components: Vec<&str> = module_path.split('.').collect();
-        
+
         // Base test directory based on test type
         let base_dir = match test_type {
             TestType::Unit => "test/unit",
@@ -327,7 +329,7 @@ impl TestCache {
             TestType::E2E => "test/e2e",
             TestType::General => "test",
         };
-        
+
         // Build the expected path
         let mut path = PathBuf::from(base_dir);
         if components.len() > 1 {
@@ -336,47 +338,56 @@ impl TestCache {
                 path.push(component);
             }
         }
-        
+
         path
     }
-    
+
     /// Get the absolute path where the test file should be located
-    pub fn get_expected_test_file_path(&self, module_path: &str, source_file_name: &str, test_type: &TestType, project_root: &Path) -> PathBuf {
+    pub fn get_expected_test_file_path(
+        &self,
+        module_path: &str,
+        source_file_name: &str,
+        test_type: &TestType,
+        project_root: &Path,
+    ) -> PathBuf {
         let test_dir = self.get_expected_test_path(module_path, test_type, project_root);
-        
+
         // Convert source file name to test file name (e.g., bitflyer.py -> test_bitflyer.py)
         let test_file_name = if source_file_name.ends_with(".py") {
             format!("test_{}", source_file_name)
         } else {
             format!("test_{}.py", source_file_name)
         };
-        
+
         // Return absolute path
         project_root.join(test_dir).join(test_file_name)
     }
-    
+
     /// Get information about where tests are found (for error messages)
     pub fn get_test_locations(&self) -> HashMap<TestType, Vec<String>> {
         let mut locations: HashMap<TestType, Vec<String>> = HashMap::new();
-        
+
         for (_, info) in &self.test_files {
-            let dir = info.path.parent()
+            let dir = info
+                .path
+                .parent()
                 .and_then(|p| p.file_name())
                 .and_then(|s| s.to_str())
                 .unwrap_or("unknown")
                 .to_string();
-                
-            locations.entry(info.test_type.clone())
+
+            locations
+                .entry(info.test_type.clone())
                 .or_insert_with(Vec::new)
                 .push(dir);
         }
-        
+
         // Deduplicate
         for (_, dirs) in locations.iter_mut() {
             dirs.sort();
             dirs.dedup();
         }
-        
+
         locations
     }
 }

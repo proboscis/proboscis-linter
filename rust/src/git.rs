@@ -4,7 +4,7 @@ use std::process::Command;
 /// Get files with unstaged changes or staged changes (diff)
 pub fn get_changed_files(project_root: &Path) -> Vec<PathBuf> {
     let mut changed_files = Vec::new();
-    
+
     // Get staged files (in the index)
     if let Ok(output) = Command::new("git")
         .current_dir(project_root)
@@ -20,7 +20,7 @@ pub fn get_changed_files(project_root: &Path) -> Vec<PathBuf> {
             }
         }
     }
-    
+
     // Get unstaged files (modified in working directory)
     if let Ok(output) = Command::new("git")
         .current_dir(project_root)
@@ -40,7 +40,7 @@ pub fn get_changed_files(project_root: &Path) -> Vec<PathBuf> {
             }
         }
     }
-    
+
     // Get untracked files
     if let Ok(output) = Command::new("git")
         .current_dir(project_root)
@@ -60,7 +60,7 @@ pub fn get_changed_files(project_root: &Path) -> Vec<PathBuf> {
             }
         }
     }
-    
+
     changed_files
 }
 
