@@ -16,7 +16,7 @@ def init_git_repo(path: Path):
 
 @pytest.mark.unit
 def test_lint_changed_files_no_git_repo():
-    """Test that lint_changed_files raises error when not in a git repo."""
+    """Test that lint_changed_files returns empty violations when not in a git repo."""
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
         
@@ -34,9 +34,9 @@ def test_lint_changed_files_no_git_repo():
         config = ProboscisConfig()
         linter = ProboscisLinter(config)
         
-        # Should raise error when not in git repo
-        with pytest.raises(RuntimeError, match="Not in a git repository"):
-            linter.lint_changed_files(tmpdir_path)
+        # Should return empty violations when not in git repo
+        violations = linter.lint_changed_files(tmpdir_path)
+        assert len(violations) == 0
 
 
 @pytest.mark.unit

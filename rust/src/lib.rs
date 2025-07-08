@@ -40,8 +40,10 @@ impl RustLinter {
         strict_mode: Option<bool>,
     ) -> PyResult<Self> {
         Ok(Self {
-            test_directories: test_directories.unwrap_or_else(|| vec!["test".to_string(), "tests".to_string()]),
-            test_patterns: test_patterns.unwrap_or_else(|| vec!["test_*.py".to_string(), "*_test.py".to_string()]),
+            test_directories: test_directories
+                .unwrap_or_else(|| vec!["test".to_string(), "tests".to_string()]),
+            test_patterns: test_patterns
+                .unwrap_or_else(|| vec!["test_*.py".to_string(), "*_test.py".to_string()]),
             exclude_patterns: exclude_patterns.unwrap_or_default(),
             strict_mode: strict_mode.unwrap_or(false),
             function_regex: Regex::new(r"^(\s*)def\s+(\w+)\s*\(").unwrap(),
@@ -51,23 +53,26 @@ impl RustLinter {
 
     fn lint_project(&self, project_root: &str) -> PyResult<Vec<LintViolation>> {
         let project_path = Path::new(project_root);
-        
+
         // Build test cache once for the entire project
         let test_cache = TestCache::build_from_directories(project_path, &self.test_directories);
-        
+
         // Find all Python files
         let python_files = find_python_files(project_path, &self.exclude_patterns);
-        
+
         // Get all rules
         let rules = get_all_rules();
-        
+
         // Process files in parallel with shared test cache
         let violations: Vec<LintViolation> = python_files
             .par_iter()
-            .filter_map(|file| self.lint_file_internal_with_cache(file, &rules, &test_cache, project_path).ok())
+            .filter_map(|file| {
+                self.lint_file_internal_with_cache(file, &rules, &test_cache, project_path)
+                    .ok()
+            })
             .flatten()
             .collect();
-        
+
         Ok(violations)
     }
 
@@ -76,40 +81,42 @@ impl RustLinter {
         let rules = get_all_rules();
         self.lint_file_internal(path, &rules)
     }
-    
+
     fn lint_changed_files(&self, project_root: &str) -> PyResult<Vec<LintViolation>> {
         let project_path = Path::new(project_root);
-        
+
         // Check if we're in a git repository
         if !git::is_git_repository(project_path) {
-            return Err(pyo3::exceptions::PyRuntimeError::new_err(
-                "Not in a git repository"
-            ));
+            // If not in a git repository, just return empty violations (approve)
+            return Ok(Vec::new());
         }
-        
+
         // Get changed files
         let changed_files = git::get_changed_files(project_path);
-        
+
         if changed_files.is_empty() {
             return Ok(Vec::new());
         }
-        
+
         // Build test cache once for the entire project
         let test_cache = TestCache::build_from_directories(project_path, &self.test_directories);
-        
+
         // Get all rules
         let rules = get_all_rules();
-        
+
         // Process changed files in parallel with shared test cache
         let violations: Vec<LintViolation> = changed_files
             .par_iter()
-            .filter_map(|file| self.lint_file_internal_with_cache(file, &rules, &test_cache, project_path).ok())
+            .filter_map(|file| {
+                self.lint_file_internal_with_cache(file, &rules, &test_cache, project_path)
+                    .ok()
+            })
             .flatten()
             .collect();
-        
+
         Ok(violations)
     }
-    
+
     fn check_test_markers(&self, project_root: &str) -> PyResult<Vec<LintViolation>> {
         let project_path = Path::new(project_root);
         let violations = check_test_markers(
@@ -126,14 +133,14 @@ impl RustLinter {
     fn get_module_path(file_path: &Path, project_root: &Path) -> String {
         // Get relative path from project root
         let relative_path = file_path.strip_prefix(project_root).unwrap_or(file_path);
-        
+
         // Remove src/ prefix if present
         let module_path = if let Ok(stripped) = relative_path.strip_prefix("src") {
             stripped
         } else {
             relative_path
         };
-        
+
         // Convert path to module notation
         let mut components = Vec::new();
         for component in module_path.components() {
@@ -150,10 +157,10 @@ impl RustLinter {
                 }
             }
         }
-        
+
         components.join(".")
     }
-    
+
     fn lint_file_internal(
         &self,
         path: &Path,
@@ -169,11 +176,11 @@ impl RustLinter {
             }
             current = current.parent().unwrap_or(current);
         }
-        
+
         let test_cache = TestCache::build_from_directories(project_root, &self.test_directories);
         self.lint_file_internal_with_cache(path, rules, &test_cache, project_root)
     }
-    
+
     fn lint_file_internal_with_cache(
         &self,
         path: &Path,
@@ -183,17 +190,18 @@ impl RustLinter {
     ) -> PyResult<Vec<LintViolation>> {
         let content = fs::read_to_string(path)?;
         let lines: Vec<&str> = content.lines().collect();
-        
+
         // Get module path for this file
         let module_path = Self::get_module_path(path, project_root);
-        
+
         // Extract public API for this module
-        let public_api = public_api::extract_module_all(path).unwrap_or(public_api::PublicApi::default());
-        
+        let public_api =
+            public_api::extract_module_all(path).unwrap_or(public_api::PublicApi::default());
+
         let mut violations = Vec::new();
         let mut current_class = None;
         let mut in_protocol = false;
-        
+
         for (line_num, line) in lines.iter().enumerate() {
             // Check for class definitions
             if let Some(captures) = self.class_regex.captures(line) {
@@ -202,12 +210,12 @@ impl RustLinter {
                 in_protocol = line.contains("Protocol");
                 continue;
             }
-            
+
             // Check for function definitions
             if let Some(captures) = self.function_regex.captures(line) {
                 let indent = captures.get(1).unwrap().as_str();
                 let function_name = captures.get(2).unwrap().as_str();
-                
+
                 // Create rule context
                 let context = rules::RuleContext {
                     test_directories: &self.test_directories,
@@ -215,19 +223,28 @@ impl RustLinter {
                     module_path: &module_path,
                     project_root,
                 };
-                
+
                 // Check if function should be checked based on public API
                 let is_method = current_class.is_some() && !indent.is_empty();
-                let class_name = if is_method { current_class.as_deref() } else { None };
-                
-                if !public_api::should_check_function(function_name, class_name, &public_api, self.strict_mode) {
+                let class_name = if is_method {
+                    current_class.as_deref()
+                } else {
+                    None
+                };
+
+                if !public_api::should_check_function(
+                    function_name,
+                    class_name,
+                    &public_api,
+                    self.strict_mode,
+                ) {
                     continue;
                 }
-                
+
                 // Check against all rules
                 for rule in rules {
                     let is_protocol_method = in_protocol && is_method;
-                    
+
                     if let Some(violation) = rule.check_function(
                         function_name,
                         path,
@@ -241,10 +258,14 @@ impl RustLinter {
                     }
                 }
             }
-            
+
             // Reset class context on dedent (non-blank line with no indentation)
             // But skip if it's a class or function definition
-            if current_class.is_some() && !line.trim().is_empty() && !line.starts_with(' ') && !line.starts_with('\t') {
+            if current_class.is_some()
+                && !line.trim().is_empty()
+                && !line.starts_with(' ')
+                && !line.starts_with('\t')
+            {
                 // Don't reset if this line is defining a new class or function at module level
                 if !self.class_regex.is_match(line) && !self.function_regex.is_match(line) {
                     current_class = None;
@@ -252,7 +273,7 @@ impl RustLinter {
                 }
             }
         }
-        
+
         Ok(violations)
     }
 }
